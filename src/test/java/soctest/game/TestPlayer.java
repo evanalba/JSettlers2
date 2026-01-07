@@ -1,6 +1,6 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
- * This file Copyright (C) 2020-2025 Jeremy D Monin <jeremy@nand.net>
+ * This file Copyright (C) 2020-2026 Jeremy D Monin <jeremy@nand.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,15 +25,19 @@ import java.util.Arrays;
 import java.util.List;
 
 import soc.game.SOCBoard;
+import soc.game.SOCBoardLarge;
 import soc.game.SOCCity;
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCGame;
+import soc.game.SOCGameOption;
+import soc.game.SOCGameOptionSet;
 import soc.game.SOCInventory;
 import soc.game.SOCPlayer;
 import soc.game.SOCPlayingPiece;
 import soc.game.SOCResourceSet;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
+import soc.game.SOCShip;
 import soc.server.savegame.SavedGameModel;
 
 import org.junit.Test;
@@ -55,6 +59,8 @@ public class TestPlayer
     @Test
     public void testGetRoadOrShip()
     {
+        /* basic game to test roads */
+
         SOCGame ga = new SOCGame("test");
         ga.addPlayer("tplayer", 2);
         SOCPlayer pl = ga.getPlayer(2);
@@ -93,7 +99,67 @@ public class TestPlayer
             assertTrue(piece instanceof SOCRoad);
         }
 
-        // TODO sea game to test ships too
+        /* sea game to test ships */
+
+        final SOCGameOptionSet knownOpts = SOCGameOptionSet.getAllKnownOptions();
+        ga = new SOCGame
+            ("tsea", SOCGameOption.parseOptionsToSet("SBL=t", knownOpts), knownOpts);
+        ga.addPlayer("tplayer", 3);
+        pl = ga.getPlayer(3);
+        assertTrue(ga.hasSeaBoard);
+        SOCBoardLarge seaBoard = (SOCBoardLarge) ga.getBoard();
+
+        final int shipEdge1 = 0xa02, shipAdjacentSettleNode = 0xa03;
+        assertNull(pl.getRoadOrShip(shipEdge1));
+        assertFalse(pl.hasRoadOrShipAtEdge(shipEdge1));
+        assertEquals(0, pl.getRoadsAndShips().size());
+        assertNull(seaBoard.roadOrShipAtEdge(shipEdge1));
+        assertNull(seaBoard.settlementAtNode(shipAdjacentSettleNode));
+
+        ga.putPiece(new SOCSettlement(pl, shipAdjacentSettleNode, null));
+        assertNotNull(pl.getSettlementOrCityAtNode(shipAdjacentSettleNode));
+        final int[] shipEdges = {roadEdge1, 0xb02, 0xc01};
+        for (int i = 0; i < shipEdges.length; ++i)
+        {
+            final int shipEdge = shipEdges[i];
+
+            ga.putPiece(new SOCShip(pl, shipEdge, seaBoard));
+            SOCPlayingPiece piece = pl.getRoadOrShip(shipEdge);
+            assertNotNull(piece);
+            assertTrue(pl.hasRoadOrShipAtEdge(shipEdge));
+            assertEquals(SOCPlayingPiece.SHIP, piece.getType());
+            assertTrue(piece instanceof SOCShip);
+            assertEquals(i + 1, pl.getRoadsAndShips().size());
+            piece = pl.getRoadsAndShips().get(i);
+            assertEquals(SOCPlayingPiece.SHIP, piece.getType());
+            assertEquals(shipEdge, piece.getCoordinates());
+            piece = pl.getRoadOrShip(shipEdge);
+            assertNotNull(piece);
+            assertEquals(SOCPlayingPiece.SHIP, piece.getType());
+            assertTrue(piece instanceof SOCShip);
+        }
+
+        final int coastalRoadEdge = 0x903;
+        assertNull(pl.getRoadOrShip(coastalRoadEdge));
+        assertFalse(pl.hasRoadOrShipAtEdge(coastalRoadEdge));
+        assertEquals(shipEdges.length, pl.getRoadsAndShips().size());
+        assertNull(board.roadOrShipAtEdge(coastalRoadEdge));
+
+        // road during sea game; same tests as 1st game's loop body
+        ga.putPiece(new SOCRoad(pl, coastalRoadEdge, board));
+        SOCPlayingPiece piece = pl.getRoadOrShip(coastalRoadEdge);
+        assertNotNull(piece);
+        assertTrue(pl.hasRoadOrShipAtEdge(coastalRoadEdge));
+        assertEquals(SOCPlayingPiece.ROAD, piece.getType());
+        assertTrue(piece instanceof SOCRoad);
+        assertEquals(shipEdges.length + 1, pl.getRoadsAndShips().size());
+        piece = pl.getRoadsAndShips().get(shipEdges.length);
+        assertEquals(SOCPlayingPiece.ROAD, piece.getType());
+        assertEquals(coastalRoadEdge, piece.getCoordinates());
+        piece = pl.getRoadOrShip(coastalRoadEdge);
+        assertNotNull(piece);
+        assertEquals(SOCPlayingPiece.ROAD, piece.getType());
+        assertTrue(piece instanceof SOCRoad);
     }
 
     /**
