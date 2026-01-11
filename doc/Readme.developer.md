@@ -282,7 +282,7 @@ parameters (before, not after, `-jar` or the SOCPlayerClient class name):
 
 ## Setup instructions for JSettlers as an Eclipse project
 
-Written for Eclipse 4.23 and Buildship 3.1, should be applicable to other versions
+Written for Eclipse 4.34 and Buildship 3.1, should be applicable to other versions
 with minor changes. These instructions can be adapted to import JSettlers and
 its `build.gradle` into other IDEs.
 
@@ -301,7 +301,10 @@ its `build.gradle` into other IDEs.
         - Buildship 3.x runs on JDK 8 or newer, eclipse 4.3 or newer
     - Install
     - If prompted to restart Eclipse, do so
-- Eclipse preferences -> Gradle -> Gradle distribution: Specific gradle version: 6.x or 7.x (6.9.2, 7.5.1 are tested)
+- Eclipse preferences -> Gradle
+    - Gradle distribution: Specific gradle version: 6.x or 7.x (6.9.2, 7.5.1 are tested)
+    - Troubleshooting note: If Gradle doesn't work in Eclipse, you may need to come back here and browse to select a specific "java home" directory
+        - This can sometimes happen after a java update, if this pref was pointing to a previous patchlevel's java home
 - Choose File -> Import -> Gradle -> Existing Gradle Project
 - Browse to the jsettlers git checkout's top-level directory (containing `build.gradle`)
 - Hit Finish
@@ -450,7 +453,7 @@ you are developing anything related to game options or jsettlers properties.
 This is optional. See also the "Developing with a database (JDBC)" section
 of this readme.
 
-These instructions are written for Eclipse 4.6. JSettlers+sqlite works with
+These instructions are written for Eclipse 4.34. JSettlers+sqlite works with
 standard Eclipse; the j2ee Eclipse adds a convenient data browser. Note that
 [Readme.md](../Readme.md) mentions a command-line option
 `-Djsettlers.db.jar=driverfile.jar`; that's needed only while running the
