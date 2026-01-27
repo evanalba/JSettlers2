@@ -1,7 +1,7 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
- * Portions of this file Copyright (C) 2007-2025 Jeremy D Monin <jeremy@nand.net>
+ * Portions of this file Copyright (C) 2007-2026 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
  *
@@ -103,7 +103,8 @@ import java.util.StringTokenizer;
  *      must implement marker {@link SOCMessageFromUnauthClient}.
  * <LI> Extend the SOCMessage class or a template class, including the required parseDataStr method.
  *      ({@link SOCRevealFogHex} and {@link SOCSetTurn} are good example subclasses.)
- *      Template parent-classes can help; the example subclasses extend them.
+ *      Template parent-classes like {@link SOCMessageTemplateMs} can help; {@link SOCGameOptionInfo}
+ *      is a good example subclass which extends that.
  *      Be sure to override the minimum version reported in {@link #getMinimumVersion()}.
  *      Set <tt>serialVersionUID</tt> to the version it's added in.
  *      for example, if adding for version 1.1.09:
