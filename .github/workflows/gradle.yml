@@ -42,7 +42,7 @@ jobs:
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
     
     - name: Setup Gradle
-      uses: gradle/actions@v5.0.2
+      uses: gradle/actions/setup-gradle@v5
       with:
         gradle-version: '7.6'
     
@@ -66,3 +66,5 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v5
+      with:
+        gradle-version: '7.6'
