@@ -46,7 +46,12 @@ jobs:
       with:
         gradle-version: '7.6'
     
-    - name: Build with Gradle 7.6
+    - name: Build with Gradle 7.6 (Ubuntu)
+      if: runner.os == 'Linux'
+      run: xvfb-run -a gradle build
+
+    - name: Build with Gradle 7.6 (Windows/macOS)
+      if: runner.os != 'Linux'
       run: gradle build
 
   dependency-submission:
