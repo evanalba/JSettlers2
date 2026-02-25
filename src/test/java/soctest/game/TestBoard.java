@@ -38,6 +38,7 @@ public class TestBoard
 {
     /**
      * Test the "facing" constants' values: {@link SOCBoard#FACING_NE} etc.
+     * 
      * @since 2.4.00
      */
     @Test
@@ -53,17 +54,21 @@ public class TestBoard
 
     /**
      * For a pair of edge coordinates, test
-     * {@link SOCBoard#getNodeBetweenAdjacentEdges(int, int)} with parameters in both orders,
-     * and {@link SOCBoard#getAdjacentNodesToEdge_arr(int)}, to see if they return {@code nodeBetween}.
-     * @param expectFail  True if {@code nodeBetween} isn't between the two edges
-     *     and {@code getNodeBetweenAdjacentEdges} should throw {@link IllegalArgumentException}
-     * @see TestBoardLarge#doTestPair_getNodeBetweenAdjacentEdges(soc.game.SOCBoardLarge, int, int, int, boolean)
+     * {@link SOCBoard#getNodeBetweenAdjacentEdges(int, int)} with parameters in
+     * both orders, and {@link SOCBoard#getAdjacentNodesToEdge_arr(int)}, to see if
+     * they return {@code nodeBetween}.
+     * 
+     * @param expectFail True if {@code nodeBetween} isn't between the two edges and
+     *                   {@code getNodeBetweenAdjacentEdges} should throw
+     *                   {@link IllegalArgumentException}
+     * @see TestBoardLarge#doTestPair_getNodeBetweenAdjacentEdges(soc.game.SOCBoardLarge,
+     *      int, int, int, boolean)
      */
-    private static void doTestPair_getNodeBetweenAdjacentEdges
-        (final SOCBoard board, final int edgeA, final int edgeB, final int nodeBetween, final boolean expectFail)
+    private static void doTestPair_getNodeBetweenAdjacentEdges(final SOCBoard board, final int edgeA, final int edgeB,
+            final int nodeBetween, final boolean expectFail)
     {
         String desc = "getNodeBetweenAdjacentEdges(0x" + Integer.toHexString(edgeA)
-            + ", 0x" + Integer.toHexString(edgeB) + ")";
+                + ", 0x" + Integer.toHexString(edgeB) + ")";
         try
         {
             final int n = board.getNodeBetweenAdjacentEdges(edgeA, edgeB);
@@ -71,13 +76,14 @@ public class TestBoard
                 fail(desc + " should have thrown exception");
             assertEquals(desc + " incorrect", nodeBetween, n);
         }
-        catch (IllegalArgumentException e) {
-            if (! expectFail)
+        catch (IllegalArgumentException e)
+        {
+            if (!expectFail)
                 throw e;
         }
 
         desc = "getNodeBetweenAdjacentEdges(0x" + Integer.toHexString(edgeB)
-            + ", 0x" + Integer.toHexString(edgeA) + ")";
+                + ", 0x" + Integer.toHexString(edgeA) + ")";
         try
         {
             final int n = board.getNodeBetweenAdjacentEdges(edgeB, edgeA);
@@ -85,8 +91,9 @@ public class TestBoard
                 fail(desc + " should have thrown exception");
             assertEquals(desc + " incorrect", nodeBetween, n);
         }
-        catch (IllegalArgumentException e) {
-            if (! expectFail)
+        catch (IllegalArgumentException e)
+        {
+            if (!expectFail)
                 throw e;
         }
 
@@ -95,19 +102,19 @@ public class TestBoard
 
         int[] nodes = board.getAdjacentNodesToEdge_arr(edgeA);
         assertTrue("Expected 0x" + Integer.toHexString(nodeBetween) + " in getAdjacentNodesToEdge_arr(0x"
-            + Integer.toHexString(edgeA) + "), was " + Arrays.toString(nodes),
-            (nodes[0] == nodeBetween) || (nodes[1] == nodeBetween));
+                + Integer.toHexString(edgeA) + "), was " + Arrays.toString(nodes),
+                (nodes[0] == nodeBetween) || (nodes[1] == nodeBetween));
 
         nodes = board.getAdjacentNodesToEdge_arr(edgeB);
         assertTrue("Expected 0x" + Integer.toHexString(nodeBetween) + " in getAdjacentNodesToEdge_arr(0x"
-            + Integer.toHexString(edgeB) + "), was " + Arrays.toString(nodes),
-            (nodes[0] == nodeBetween) || (nodes[1] == nodeBetween));
+                + Integer.toHexString(edgeB) + "), was " + Arrays.toString(nodes),
+                (nodes[0] == nodeBetween) || (nodes[1] == nodeBetween));
     }
 
     @Test
     public void test_getNodeBetweenAdjacentEdges()
     {
-        SOCBoard b = new SOCBoard4p(null);  // SOCBoard4p and SOCBoard6p use same geometry methods in base SOCBoard
+        SOCBoard b = new SOCBoard4p(null); // SOCBoard4p and SOCBoard6p use same geometry methods in base SOCBoard
 
         // See RST Dissertation figure A.3: Edge Coordinates and A.2: Node Coordinates
 
@@ -116,30 +123,43 @@ public class TestBoard
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x27, 0x27, false);
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x25, 0x36, false);
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x36, 0x36, false);
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x26, 0, true);  // not adjacent: same edge twice
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x04, 0, true);  // same row 1 hex away
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x48, 0, true);  // same row
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x06, 0, true);  // 2 edges away
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x26, 0, true); // not adjacent: same edge twice
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x04, 0, true); // same row 1 hex away
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x48, 0, true); // same row
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x26, 0x06, 0, true); // 2 edges away
 
         // adjacent to northeast-diagonal [Even, Odd] edge: Fig A. 11
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x36, 0x47, false);
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x46, 0x47, false);
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x48, 0x58, false);
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x48, 0x58, false);
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x47, 0, true);  // not adjacent: same edge twice
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x67, 0, true);  // same axis 1 hex away
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x27, 0, true);  // same axis
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x49, 0, true);  // 2 edges away
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x47, 0, true); // not adjacent: same edge twice
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x67, 0, true); // same axis 1 hex away
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x27, 0, true); // same axis
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x47, 0x49, 0, true); // 2 edges away
 
         // adjacent to southeast-diagonal [Odd, Even] edge: Fig A. 12
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x41, 0x52, false);
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x42, 0x52, false);
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x62, 0x63, false);
         doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x63, 0x63, false);
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x52, 0, true);  // not adjacent: same edge twice
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x54, 0, true);  // same axis 1 hex away
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x50, 0, true);  // same axis
-        doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x43, 0, true);  // 2 edges away
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x52, 0, true); // not adjacent: same edge twice
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x54, 0, true); // same axis 1 hex away
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x50, 0, true); // same axis
+        doTestPair_getNodeBetweenAdjacentEdges(b, 0x52, 0x43, 0, true); // 2 edges away
+    }
+
+    @Test
+    public void initialBoard_allWaterHex()
+    {
+        SOCBoard board = new SOCBoard4p(null);
+        int[] layout = board.getHexLayout();
+        assertNotNull("hexLayout should not be null", layout);
+
+        for (int i = 0; i < layout.length; i++)
+        {
+            assertEquals("hexLayout[" + "] should not be WATER_HEX", SOCBoard.WATER_HEX, layout[i]);
+        }
     }
 
 }
