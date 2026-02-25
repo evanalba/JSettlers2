@@ -30,6 +30,8 @@ repositories {
 
 dependencies {
     testImplementation 'junit:junit:4.13.1'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.assertj:assertj-swing-junit:3.17.1'
     implementation 'com.google.code.gson:gson:2.8.6'  // optional at runtime, for savegame feature
         // If version changes, update Readme.developer.md and jsserver.properties.sample
         // Same version is used by v3 branch (dependency of protobuf-java-util)
