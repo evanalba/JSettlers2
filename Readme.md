@@ -1,3 +1,4 @@
+[![Java CI with Gradle](https://github.com/evanalba/JSettlers2/actions/workflows/gradle.yml/badge.svg)](https://github.com/evanalba/JSettlers2/actions/workflows/gradle.yml)
 # ![logo](doc/graf/Logo32.png?raw=true) Java Settlers
 
 A desktop client-server version of Settlers of Catan
