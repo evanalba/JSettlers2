@@ -3,7 +3,7 @@ name: Java CI with Gradle
 on:
   workflow_dispatch:
   push:
-    branches: [ "main", "p1/issue-15-ci-gui-test-failure" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
