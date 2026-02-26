@@ -60,6 +60,7 @@ public class TestRobberyGuards
 
         Object currentRoll = getField(g, "currentRoll");
         Field victimsField = currentRoll.getClass().getDeclaredField("sc_robPossibleVictims");
+        victimsField.setAccessible(true);
         victimsField.set(currentRoll, Collections.emptyList());
 
         assertFalse(g.canChoosePlayer(0));
