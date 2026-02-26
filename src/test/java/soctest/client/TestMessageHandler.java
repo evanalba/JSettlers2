@@ -51,9 +51,6 @@ import static org.junit.Assert.*;
  */
 public class TestMessageHandler
 {
-
-    // ---- MessageHandler construction ----
-
     @Test
     public void testMessageHandler_defaultConstructor()
     {
@@ -68,8 +65,6 @@ public class TestMessageHandler
         MessageHandler mh = new MessageHandler();
         mh.init(null);
     }
-
-    // ---- Dice result message round-trip ----
 
     @Test
     public void testDiceResultMessage_roundTrip()
@@ -99,8 +94,6 @@ public class TestMessageHandler
             assertEquals(val, ((SOCDiceResult) parsed).getResult());
         }
     }
-
-    // ---- Build request message round-trip ----
 
     @Test
     public void testBuildRequestMessage_road()
@@ -151,8 +144,6 @@ public class TestMessageHandler
         new SOCBuildRequest("mygame", -2);
     }
 
-    // ---- Bank trade message round-trip ----
-
     @Test
     public void testBankTradeMessage_roundTrip()
     {
@@ -170,8 +161,6 @@ public class TestMessageHandler
         assertEquals(4, bt.getGiveSet().getAmount(SOCResourceConstants.CLAY));
         assertEquals(1, bt.getGetSet().getAmount(SOCResourceConstants.SHEEP));
     }
-
-    // ---- Game state message round-trip ----
 
     @Test
     public void testGameStateMessage_roundTrip()
@@ -197,8 +186,6 @@ public class TestMessageHandler
         assertEquals(SOCGame.ROLL_OR_CARD, ((SOCGameState) parsed).getState());
     }
 
-    // ---- Turn message round-trip ----
-
     @Test
     public void testTurnMessage_roundTrip()
     {
@@ -214,8 +201,6 @@ public class TestMessageHandler
         assertEquals(2, t.getPlayerNumber());
         assertEquals(SOCGame.PLAY1, t.getGameState());
     }
-
-    // ---- Player element message round-trip (resource tracking) ----
 
     @Test
     public void testPlayerElementMessage_setWheat()
@@ -264,8 +249,6 @@ public class TestMessageHandler
         assertEquals(1, pe.getAmount());
     }
 
-    // ---- Game text message round-trip ----
-
     @Test
     public void testGameTextMessage_roundTrip()
     {
@@ -281,8 +264,6 @@ public class TestMessageHandler
         assertEquals("player1", gtm.getNickname());
         assertEquals("hello all", gtm.getText());
     }
-
-    // ---- null message handling ----
 
     @Test
     public void testHandle_nullMessageIsIgnored()
