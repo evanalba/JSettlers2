@@ -115,7 +115,12 @@ public class TestToCmdToStringParse
             {
                 // that's fine, skip toCmd
             } else if (! s.equals(expectedToCmd)) {
-                res.append(" toCmd: expected \"" + expectedToCmd + "\", got \"" + s + "\"");
+                // check if fields are equivalent to prevent false failures
+                SOCMessage exp = SOCMessage.toMsg(expectedToCmd);
+                SOCMessage act = SOCMessage.toMsg(s);                
+                if (! parsedMsgEquivalent(msgClass, exp, act, ignoreObjFields)) {
+                    res.append(" toCmd: expected \"" + expectedToCmd + "\", got \"" + s + "\"");
+                }
             } else {
                 // finish round-trip compare msg -> toCmd() -> toMsg(cmd)
                 SOCMessage rev = SOCMessage.toMsg(s);
@@ -136,7 +141,17 @@ public class TestToCmdToStringParse
             {
                 if (! (parseOnly || s.equals(expectedToString)))
                 {
-                    res.append(" toString: expected \"" + expectedToString + "\", got \"" + s + "\"");
+                    try {
+                        // check if fields are equivalent to prevent false failures
+                        SOCMessage exp = SOCMessage.parseMsgStr(expectedToString);
+                        SOCMessage act = SOCMessage.parseMsgStr(s);                
+                        if (! parsedMsgEquivalent(msgClass, exp, act, ignoreObjFields)) {
+                            res.append(" toString: expected \"" + expectedToString + "\", got \"" + s + "\"");
+                        }
+                    }
+                    catch (ParseException e) {
+                        res.append(" parseMsgStr(s) failed: " + e);
+                    }
                 }
                 else if (! skipParseToString)
                 {
@@ -172,6 +187,32 @@ public class TestToCmdToStringParse
             System.err.println("testRoundTripParsing: " + results);
             fail(results.toString());
         }
+    }
+
+    /**
+     * Helper for {@link #testRoundTripParsing()}
+     * Passes parsed messages to {@link #compareMsgObjFields()} and returns true if no differences were recorded
+     * @param msgClass  SOCMessage class being compared, for convenience and consistency
+     * @param parsedExpected  Constructed message instance with expected field values, pre-parsed, to compare against {@code parsedActual}
+     * @param parsedActual  Message from parsed string, pre-parsed, to compare against {@code parsedExpected}
+     * @param ignoreObjFields  Instance field names to ignore during comparison, or {@code null}
+     */
+    private boolean parsedMsgEquivalent
+        (final Class<? extends SOCMessage> msgClass,
+         final SOCMessage parsedExpected, final SOCMessage parsedActual,
+         final Set<String> ignoreObjFields)
+    {
+        // null handled by separate conditional in testRoundTripParsing(); returns false so that conditional can be triggered
+        if (parsedExpected == null || parsedActual == null) 
+            return false;
+        
+        StringBuilder diff = new StringBuilder();
+        compareMsgObjFields(msgClass, parsedExpected, parsedActual, diff, ignoreObjFields); 
+
+        if (diff.length() == 0)  // if compareMsgObjFields() results in an empty string, no differences found
+            return true;
+
+        return false;
     }
 
     /**
