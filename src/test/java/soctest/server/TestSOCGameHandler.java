@@ -20,25 +20,43 @@
 
 package soctest.server;
 
+import java.util.Random;
+
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
+import soc.message.SOCMessage;
+import soc.message.SOCPotentialSettlements;
 import soc.server.SOCGameHandler;
+import soc.server.SOCGameListAtServer;
 import soc.util.SOCFeatureSet;
+import soctest.game.GameTestUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * A few tests for {@link SOCGameHandler}.
+ * Tests for {@link SOCGameHandler}.
  *<P>
- * TODO: As of mid-2018, new functionality will come with unit tests but all existing {@code SOCGameHandler}
- * code still needs to have unit tests written.
+ * Covers {@code calcGameClientFeaturesRequired}, game creation through
+ * {@link soctest.game.GameTestUtils}, board layout message generation,
+ * and debug command help output.
  *
  * @since 2.0.00
  */
 public class TestSOCGameHandler
 {
+    private static SOCGameHandler sgh;
+    private static SOCGameListAtServer gl;
+
+    @BeforeClass
+    public static void setUpOnce()
+    {
+        sgh = new SOCGameHandler(null);
+        gl = new SOCGameListAtServer(new Random(), SOCGameOptionSet.getAllKnownOptions());
+    }
+
     /** Tests for {@link SOCGameHandler#calcGameClientFeaturesRequired(SOCGame)}. */
     @Test
     public void testCalcGameClientFeaturesRequired()
@@ -74,8 +92,6 @@ public class TestSOCGameHandler
         assertTrue(opt3PKnown.hasFlag(SOCGameOption.FLAG_3RD_PARTY));
         knownOpts.addKnownOption(opt3PKnown);
 
-        final SOCGameHandler sgh = new SOCGameHandler(null);  // null SOCServer is OK for this test, not in general
-
         for (String[] pair : gameoptFeatPairs)
         {
             final String gameopts = pair[0], featsStr = pair[1];
@@ -99,6 +115,139 @@ public class TestSOCGameHandler
                     fail("For gameopts " + gameopts + " expected cli feats " + featsStr
                          + " but got " + cliFeats.getEncodedList());
             }
+        }
+    }
+
+    /**
+     * Creating a standard 4-player game through {@link GameTestUtils#createGame}
+     * should produce a valid game with the expected player count and state.
+     */
+    @Test
+    public void testCreateGame_classic4p()
+    {
+        final SOCGame ga = GameTestUtils.createGame(4, null, null, "test4p", gl, sgh);
+        try
+        {
+            assertEquals(4, ga.maxPlayers);
+            assertFalse(ga.hasSeaBoard);
+            assertNotNull(ga.getGameOptions());
+        }
+        finally
+        {
+            gl.deleteGame(ga.getName());
+        }
+    }
+
+    /**
+     * A 6-player game should set maxPlayers to 6 and the PLB option should be active.
+     */
+    @Test
+    public void testCreateGame_6player()
+    {
+        final SOCGame ga = GameTestUtils.createGame(6, null, null, "test6p", gl, sgh);
+        try
+        {
+            assertEquals(6, ga.maxPlayers);
+            assertTrue("PLB should be set for 6-player game",
+                ga.isGameOptionSet("PLB"));
+        }
+        finally
+        {
+            gl.deleteGame(ga.getName());
+        }
+    }
+
+    /**
+     * A game created with the Four Islands scenario should carry
+     * the {@code SC} option and require the sea board.
+     */
+    @Test
+    public void testCreateGame_scenario4ISL()
+    {
+        final SOCGame ga = GameTestUtils.createGame(
+            4, SOCScenario.K_SC_4ISL, null, "test4ISL", gl, sgh);
+        try
+        {
+            assertTrue("scenario game needs sea board", ga.hasSeaBoard);
+            assertEquals(SOCScenario.K_SC_4ISL,
+                ga.getGameOptionStringValue("SC"));
+        }
+        finally
+        {
+            gl.deleteGame(ga.getName());
+        }
+    }
+
+    /**
+     * {@link SOCGameHandler#getBoardLayoutMessage(SOCGame)} should return
+     * a non-null message for a classic 4-player game after it has been started.
+     */
+    @Test
+    public void testGetBoardLayoutMessage_classic()
+    {
+        final SOCGame ga = GameTestUtils.createGame(4, null, null, "testBLM", gl, sgh);
+        try
+        {
+            for (int pn = 0; pn < 4; pn++)
+                ga.addPlayer("testplayer" + pn, pn);
+            ga.startGame();
+
+            SOCMessage msg = SOCGameHandler.getBoardLayoutMessage(ga);
+            assertNotNull("board layout message should not be null", msg);
+        }
+        finally
+        {
+            gl.deleteGame(ga.getName());
+        }
+    }
+
+    /**
+     * {@link SOCGameHandler#getDebugCommandsHelp()} should return a non-empty
+     * array of strings, and should contain expected entries.
+     */
+    @Test
+    public void testGetDebugCommandsHelp()
+    {
+        final String[] help = sgh.getDebugCommandsHelp();
+        assertNotNull("debug help should not be null", help);
+        assertTrue("debug help should have entries", help.length > 0);
+
+        boolean foundRsrcs = false;
+        boolean foundDev = false;
+        for (String line : help)
+        {
+            assertNotNull(line);
+            if (line.startsWith("rsrcs:"))
+                foundRsrcs = true;
+            if (line.startsWith("dev:"))
+                foundDev = true;
+        }
+        assertTrue("debug help should contain rsrcs command", foundRsrcs);
+        assertTrue("debug help should contain dev command", foundDev);
+    }
+
+    /**
+     * {@link SOCGameHandler#gatherBoardPotentials(SOCGame, int)} should
+     * return a non-null array for a started classic game.
+     */
+    @Test
+    public void testGatherBoardPotentials_classicGame()
+    {
+        final SOCGame ga = GameTestUtils.createGame(4, null, null, "testGBP", gl, sgh);
+        try
+        {
+            for (int pn = 0; pn < 4; pn++)
+                ga.addPlayer("gbpPlayer" + pn, pn);
+            ga.startGame();
+
+            SOCPotentialSettlements[] potentials =
+                SOCGameHandler.gatherBoardPotentials(ga, Integer.MAX_VALUE);
+            assertNotNull("potentials array should not be null", potentials);
+            assertTrue("potentials should have entries", potentials.length > 0);
+        }
+        finally
+        {
+            gl.deleteGame(ga.getName());
         }
     }
 
