@@ -49,8 +49,6 @@ public class TestSOCDBHelper
         db = new SOCDBHelper();
     }
 
-    // ---- Schema version constants ----
-
     @Test
     public void testSchemaVersionOrdering()
     {
@@ -61,8 +59,6 @@ public class TestSOCDBHelper
         assertEquals("LATEST == 2000",
             SOCDBHelper.SCHEMA_VERSION_2000, SOCDBHelper.SCHEMA_VERSION_LATEST);
     }
-
-    // ---- Password length checks (original schema, schemaVersion == 0 which is < 1200) ----
 
     @Test
     public void testPasswordLengthOK_nullPassword()
@@ -100,8 +96,6 @@ public class TestSOCDBHelper
         assertFalse("one past max for original schema", db.isPasswordLengthOK(sb.toString()));
     }
 
-    // ---- Password length checks (bcrypt schema, schemaVersion >= 1200) ----
-
     @Test
     public void testPasswordLengthOK_bcryptSchema_shortPassword()
         throws Exception
@@ -132,8 +126,6 @@ public class TestSOCDBHelper
         assertFalse("one past max for bcrypt schema", db.isPasswordLengthOK(sb.toString()));
     }
 
-    // ---- getMaxPasswordLength ----
-
     @Test
     public void testGetMaxPasswordLength_originalSchema()
     {
@@ -156,8 +148,6 @@ public class TestSOCDBHelper
         assertEquals(SOCDBHelper.PW_MAX_LEN_SCHEME_BCRYPT, db.getMaxPasswordLength());
     }
 
-    // ---- isInitialized / getSchemaVersion on fresh instance ----
-
     @Test
     public void testNotInitializedByDefault()
     {
@@ -169,8 +159,6 @@ public class TestSOCDBHelper
     {
         assertEquals(0, db.getSchemaVersion());
     }
-
-    // ---- initialize property validation: URL / driver ----
 
     @Test
     public void testInitialize_nullUser_returnsQuietly()
@@ -208,8 +196,6 @@ public class TestSOCDBHelper
         db.initialize("u", "p", props);
     }
 
-    // ---- initialize: BCrypt work factor validation ----
-
     @Test(expected = IllegalArgumentException.class)
     public void testInitialize_bcryptWorkFactor_nonInteger()
         throws Exception
@@ -239,8 +225,6 @@ public class TestSOCDBHelper
         db.initialize("u", "p", props);
     }
 
-    // ---- initialize: settings property validation ----
-
     @Test(expected = IllegalArgumentException.class)
     public void testInitialize_settingsNotWrite()
         throws Exception
@@ -249,8 +233,6 @@ public class TestSOCDBHelper
         props.put(SOCDBHelper.PROP_JSETTLERS_DB_SETTINGS, "xyz");
         db.initialize("u", "p", props);
     }
-
-    // ---- initialize: recognized driver auto-detection from URL ----
 
     @Test(expected = SQLException.class)
     public void testInitialize_postgresUrl_autoDetectsDriver()
@@ -272,8 +254,6 @@ public class TestSOCDBHelper
         db.initialize("u", "p", props);
     }
 
-    // ---- password scheme constants sanity ----
-
     @Test
     public void testPasswordSchemeConstants()
     {
@@ -293,8 +273,6 @@ public class TestSOCDBHelper
         assertTrue("default <= max",
             SOCDBHelper.BCRYPT_DEFAULT_WORK_FACTOR <= BCrypt.GENSALT_MAX_LOG2_ROUNDS);
     }
-
-    // ---- helper ----
 
     /**
      * Use reflection to set the private {@code schemaVersion} field
