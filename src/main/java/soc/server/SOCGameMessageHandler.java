@@ -132,193 +132,74 @@ public class SOCGameMessageHandler
          * someone put a piece on the board
          */
         case SOCMessage.PUTPIECE:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handlePUTPIECE(game, connection, (SOCPutPiece) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCPutPiece)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCPutPiece)mes).getGame());
             break;
 
         /**
          * a player is moving the robber or pirate
          */
         case SOCMessage.MOVEROBBER:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleMOVEROBBER(game, connection, (SOCMoveRobber) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCMoveRobber)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCMoveRobber)mes).getGame());
             break;
 
         case SOCMessage.ROLLDICE:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleROLLDICE(game, connection, (SOCRollDice) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCRollDice)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCRollDice)mes).getGame());
             break;
 
         case SOCMessage.DISCARD:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleDISCARD(game, connection, (SOCDiscard) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCDiscard)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCDiscard)mes).getGame());
             break;
 
         case SOCMessage.ENDTURN:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleENDTURN(game, connection, (SOCEndTurn) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCEndTurn)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCEndTurn)mes).getGame());
             break;
 
         case SOCMessage.CHOOSEPLAYER:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleCHOOSEPLAYER(game, connection, (SOCChoosePlayer) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCChoosePlayer)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCChoosePlayer)mes).getGame());
             break;
 
         case SOCMessage.MAKEOFFER:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleMAKEOFFER(game, connection, (SOCMakeOffer) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCMakeOffer)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCMakeOffer)mes).getGame());
             break;
 
         case SOCMessage.CLEAROFFER:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleCLEAROFFER(game, connection, (SOCClearOffer) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCClearOffer)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCClearOffer)mes).getGame());
             break;
 
         case SOCMessage.REJECTOFFER:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleREJECTOFFER(game, connection, (SOCRejectOffer) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCRejectOffer)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCRejectOffer)mes).getGame());
             break;
 
         case SOCMessage.ACCEPTOFFER:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleACCEPTOFFER(game, connection, (SOCAcceptOffer) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCAcceptOffer)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCAcceptOffer)mes).getGame());
             break;
 
         case SOCMessage.BANKTRADE:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleBANKTRADE(game, connection, (SOCBankTrade) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCBankTrade)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCBankTrade)mes).getGame());
             break;
 
         case SOCMessage.BUILDREQUEST:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleBUILDREQUEST(game, connection, (SOCBuildRequest) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCBuildRequest)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCBuildRequest)mes).getGame());
             break;
 
         case SOCMessage.CANCELBUILDREQUEST:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleCANCELBUILDREQUEST(game, connection, (SOCCancelBuildRequest) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCCancelBuildRequest)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCCancelBuildRequest)mes).getGame());
             break;
 
         case SOCMessage.BUYDEVCARDREQUEST:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleBUYDEVCARDREQUEST(game, connection, (SOCBuyDevCardRequest) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCBuyDevCardRequest)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCBuyDevCardRequest)mes).getGame());
             break;
 
         case SOCMessage.PLAYDEVCARDREQUEST:
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handlePLAYDEVCARDREQUEST(game, connection, (SOCPlayDevCardRequest) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCPlayDevCardRequest)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCPlayDevCardRequest)mes).getGame());
             break;
 
         case SOCMessage.PICKRESOURCES:  // Discovery / Year of Plenty / Gold Hex resource picks
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handlePICKRESOURCES(game, connection, (SOCPickResources) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCPickResources)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCPickResources)mes).getGame());
             break;
 
         case SOCMessage.PICKRESOURCETYPE:  // Resource Type / Monopoly pick
-
-            //createNewGameEventRecord();
-            //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handlePICKRESOURCETYPE(game, connection, (SOCPickResourceType) message);
-
-            //ga = (SOCGame)gamesData.get(((SOCPickResourceType)mes).getGame());
-            //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCPickResourceType)mes).getGame());
             break;
 
         /**
@@ -387,9 +268,7 @@ public class SOCGameMessageHandler
         return true;  // Message was handled in a non-default case above
     }
 
-
     /// Roll dice and pick resources ///
-
 
     /**
      * handle "roll dice" message.
@@ -1005,9 +884,7 @@ public class SOCGameMessageHandler
         }
     }
 
-
     /// Robber/pirate robbery ///
-
 
     /**
      * handle "move robber" message (move the robber or the pirate).
@@ -1246,9 +1123,7 @@ public class SOCGameMessageHandler
         }
     }
 
-
     /// Flow of Game ///
-
 
     /**
      * While undoing a game action for the current player,
@@ -1447,7 +1322,6 @@ public class SOCGameMessageHandler
         return (msgsAfter.isEmpty() ? null : msgsAfter);
     }
 
-
     /**
      * handle "end turn" message.
      * This normally ends a player's normal turn (phase {@link SOCGame#PLAY1}).
@@ -1622,9 +1496,7 @@ public class SOCGameMessageHandler
             srv.messageToPlayer(c, gaName, clientPN, new SOCSimpleRequest(gaName, -1, reqtype, 0, 0));
     }
 
-
     /// Player trades and bank trades ///
-
 
     /**
      * handle "make offer" message.
@@ -1932,9 +1804,7 @@ public class SOCGameMessageHandler
         }
     }
 
-
     /// Game piece building, placement, and moving ///
-
 
     /**
      * handle "build request" message.
@@ -2511,19 +2381,215 @@ public class SOCGameMessageHandler
                 switch (pieceType)
                 {
                 case SOCPlayingPiece.ROAD:
-                    decline = handlePutRoad(ga, gaName, player, c, gameState, coord, pn, plName, longestRoutePlayer);
+
+                    if ((gameState == SOCGame.START1B) || (gameState == SOCGame.START2B) || (gameState == SOCGame.START3B)
+                        || (gameState == SOCGame.PLACING_ROAD)
+                        || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2))
+                    {
+                        if (player.isPotentialRoad(coord) && (player.getNumPieces(SOCPlayingPiece.ROAD) >= 1))
+                        {
+                            final SOCRoad rd = new SOCRoad(player, coord, null);
+                            ga.putPiece(rd);  // Changes game state and (if initial placement) player
+
+                            // If placing this piece reveals a fog hex, putPiece will call srv.gameEvent
+                            // which will send a SOCRevealFogHex message to the game.
+
+                            /*
+                               if (D.ebugOn) {
+                               D.ebugPrintln("AFTER");
+                               for (int pn = 0; pn < SOCGame.MAXPLAYERS; pn++) {
+                               SOCPlayer tmpPlayer = ga.getPlayer(pn);
+                               D.ebugPrintln("Player # "+pn);
+                               for (int i = 0x22; i < 0xCC; i++) {
+                               if (tmpPlayer.isPotentialRoad(i))
+                               D.ebugPrintln("### POTENTIAL ROAD AT "+Integer.toHexString(i));
+                               }
+                               }
+                               }
+                             */
+
+                            sendPiecePlacedMessages(ga, gaName, pn, SOCPlayingPiece.ROAD,
+                                coord, plName, longestRoutePlayer, true);
+
+                            // If needed, call sendTurn or send SOCRollDicePrompt
+                            handler.sendTurnStateAtInitialPlacement(ga, player, c, gameState);
+
+                            int newState = ga.getGameState();
+                            if ((newState == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE)
+                                || (newState == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE))
+                            {
+                                // gold hex revealed from fog (scenario SC_FOG)
+                                handler.sendGameState_sendGoldPickAnnounceText(ga, gaName, c, null);
+                            }
+                        } else {
+                            D.ebugPrintlnINFO("ILLEGAL ROAD: 0x" + Integer.toHexString(coord)
+                                + ": player " + pn);
+                            if (player.isRobot() && D.ebugOn)
+                            {
+                                D.ebugPrintlnINFO(" - pl.isPotentialRoad: " + player.isPotentialRoad(coord));
+                                SOCPlayingPiece pp = ga.getBoard().roadOrShipAtEdge(coord);
+                                D.ebugPrintlnINFO(" - roadAtEdge: " + ((pp != null) ? pp : "none"));
+                            }
+
+                            sendDeclineReason = SOCDeclinePlayerRequest.REASON_LOCATION;
+                            sendDeclineTextKey = "action.build.cannot.there.road";
+                                // "You can't build a road there."
+                            sendCancelReply = true;
+                        }
+                    } else {
+                        sendDeclineReason = SOCDeclinePlayerRequest.REASON_NOT_NOW;
+                        sendDeclineTextKey = "action.build.cannot.now.road";
+                            // "You can't build a road now."
+                    }
+
                     break;
 
                 case SOCPlayingPiece.SETTLEMENT:
-                    decline = handlePutSettlement(ga, gaName, player, c, gameState, coord, pn, plName, longestRoutePlayer);
+
+                    if ((gameState == SOCGame.START1A) || (gameState == SOCGame.START2A)
+                        || (gameState == SOCGame.START3A) || (gameState == SOCGame.PLACING_SETTLEMENT))
+                    {
+                        if (player.canPlaceSettlement(coord) && (player.getNumPieces(SOCPlayingPiece.SETTLEMENT) >= 1))
+                        {
+                            final SOCSettlement se = new SOCSettlement(player, coord, null);
+                            ga.putPiece(se);   // Changes game state and (if initial placement) player
+
+                            sendPiecePlacedMessages(ga, gaName, pn, SOCPlayingPiece.SETTLEMENT,
+                                coord, plName, longestRoutePlayer, true);
+
+                            // Check player and send new game state
+                            if (! handler.checkTurn(c, ga))
+                                handler.sendTurn(ga, false);  // Announce new state and new current player
+                            else
+                                handler.sendGameState(ga);
+
+                            if (ga.hasSeaBoard && (ga.getGameState() == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
+                            {
+                                // Prompt to pick from gold: send text and SOCSimpleRequest(PROMPT_PICK_RESOURCES)
+                                handler.sendGameState_sendGoldPickAnnounceText(ga, gaName, c, null);
+                            }
+                        } else {
+                            D.ebugPrintlnINFO("ILLEGAL SETTLEMENT: 0x" + Integer.toHexString(coord)
+                                + ": player " + pn);
+                            if (player.isRobot() && D.ebugOn)
+                            {
+                                D.ebugPrintlnINFO(" - pl.isPotentialSettlement: "
+                                    + player.isPotentialSettlement(coord));
+                                SOCPlayingPiece pp = ga.getBoard().settlementAtNode(coord);
+                                D.ebugPrintlnINFO(" - settlementAtNode: " + ((pp != null) ? pp : "none"));
+                            }
+
+                            sendDeclineReason = SOCDeclinePlayerRequest.REASON_LOCATION;
+                            sendDeclineTextKey = "action.build.cannot.there.stlmt";
+                                // "You can't build a settlement there."
+                            sendCancelReply = true;
+                        }
+                    } else {
+                        sendDeclineReason = SOCDeclinePlayerRequest.REASON_NOT_NOW;
+                        sendDeclineTextKey = "action.build.cannot.now.stlmt";
+                            // "You can't build a settlement now."
+                    }
+
                     break;
 
                 case SOCPlayingPiece.CITY:
-                    decline = handlePutCity(ga, gaName, player, c, gameState, coord, pn, plName);
+
+                    if (gameState == SOCGame.PLACING_CITY)
+                    {
+                        if (player.isPotentialCity(coord) && (player.getNumPieces(SOCPlayingPiece.CITY) >= 1))
+                        {
+                            boolean houseRuleFirstCity = ga.isGameOptionSet("N7C") && ! ga.hasBuiltCity();
+                            if (houseRuleFirstCity && ga.isGameOptionSet("N7")
+                                && (ga.getRoundCount() < ga.getGameOptionIntValue("N7")))
+                            {
+                                // If "No 7s for first # rounds" is active, and this isn't its last round, 7s won't
+                                // be rolled soon: Don't announce "Starting next turn, dice rolls of 7 may occur"
+                                houseRuleFirstCity = false;
+                            }
+
+                            final SOCCity ci = new SOCCity(player, coord, null);
+                            ga.putPiece(ci);  // changes game state and maybe player
+
+                            sendPiecePlacedMessages(ga, gaName, pn, SOCPlayingPiece.CITY,
+                                coord, plName, null, false);
+                            if (houseRuleFirstCity)
+                                srv.messageToGameKeyed(ga, true, false, "action.built.nextturn.7.houserule");
+                                // "Starting next turn, dice rolls of 7 may occur (house rule)."
+
+                            // Check player and send new game state
+                            if (! handler.checkTurn(c, ga))
+                                handler.sendTurn(ga, false);  // Announce new state and new current player
+                            else
+                                handler.sendGameState(ga);
+                        } else {
+                            D.ebugPrintlnINFO("ILLEGAL CITY: 0x" + Integer.toHexString(coord)
+                                + ": player " + pn);
+                            if (player.isRobot() && D.ebugOn)
+                            {
+                                D.ebugPrintlnINFO(" - pl.isPotentialCity: " + player.isPotentialCity(coord));
+                                SOCPlayingPiece pp = ga.getBoard().settlementAtNode(coord);
+                                D.ebugPrintlnINFO(" - city/settlementAtNode: " + ((pp != null) ? pp : "none"));
+                            }
+
+                            sendDeclineReason = SOCDeclinePlayerRequest.REASON_LOCATION;
+                            sendDeclineTextKey = "action.build.cannot.there.city";
+                                // "You can't build a city there."
+                            sendCancelReply = true;
+                        }
+                    } else {
+                        sendDeclineReason = SOCDeclinePlayerRequest.REASON_NOT_NOW;
+                        sendDeclineTextKey = "action.build.cannot.now.city";
+                            // "You can't build a city now."
+                    }
+
                     break;
 
                 case SOCPlayingPiece.SHIP:
-                    decline = handlePutShip(ga, gaName, player, c, gameState, coord, pn, plName, longestRoutePlayer);
+
+                    if ((gameState == SOCGame.START1B) || (gameState == SOCGame.START2B) || (gameState == SOCGame.START3B)
+                        || (gameState == SOCGame.PLACING_SHIP)
+                        || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2))
+                    {
+                        // Place it if we can; canPlaceShip checks potentials and pirate ship location
+                        if (ga.canPlaceShip(player, coord) && (player.getNumPieces(SOCPlayingPiece.SHIP) >= 1))
+                        {
+                            final SOCShip sh = new SOCShip(player, coord, null);
+                            ga.putPiece(sh);  // Changes game state and (during initial placement) sometimes player
+
+                            sendPiecePlacedMessages(ga, gaName, pn, SOCPlayingPiece.SHIP,
+                                coord, plName, longestRoutePlayer, true);
+
+                            // If needed, call sendTurn or send SOCRollDicePrompt
+                            handler.sendTurnStateAtInitialPlacement(ga, player, c, gameState);
+
+                            int newState = ga.getGameState();
+                            if ((newState == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE)
+                                || (newState == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE))
+                            {
+                                // gold hex revealed from fog (scenario SC_FOG)
+                                handler.sendGameState_sendGoldPickAnnounceText(ga, gaName, c, null);
+                            }
+                        } else {
+                            D.ebugPrintlnINFO("ILLEGAL SHIP: 0x" + Integer.toHexString(coord)
+                                + ": player " + pn);
+                            if (player.isRobot() && D.ebugOn)
+                            {
+                                D.ebugPrintlnINFO(" - pl.isPotentialShip: " + player.isPotentialShip(coord));
+                                SOCPlayingPiece pp = ga.getBoard().roadOrShipAtEdge(coord);
+                                D.ebugPrintlnINFO(" - ship/roadAtEdge: " + ((pp != null) ? pp : "none"));
+                            }
+
+                            sendDeclineReason = SOCDeclinePlayerRequest.REASON_LOCATION;
+                            sendDeclineTextKey = "action.build.cannot.there.ship";
+                                // "You can't build a ship there."
+                            sendCancelReply = true;
+                        }
+                    } else {
+                        sendDeclineReason = SOCDeclinePlayerRequest.REASON_NOT_NOW;
+                        sendDeclineTextKey = "action.build.cannot.now.ship";
+                            // "You can't build a ship now."
+                    }
+
                     break;
 
                 default:
@@ -2568,6 +2634,46 @@ public class SOCGameMessageHandler
         finally
         {
             ga.releaseMonitor();
+        }
+    }
+
+    /**
+     * After placing a piece, take the game-list monitor and send the "built" text,
+     * {@link SOCPutPiece} message, optional longest-road report, and any pending
+     * game messages. Called from {@link #handlePUTPIECE(SOCGame, Connection, SOCPutPiece)}.
+     *
+     * @param ga  Game
+     * @param gaName  {@code ga.getName()}
+     * @param pn  Player number who placed the piece
+     * @param pieceType  Piece type constant from {@link SOCPlayingPiece}
+     * @param coord  Board coordinate where placed
+     * @param plName  Placing player's name, for "built" message text
+     * @param longestRoutePlayer  Player with longest road before placement, or {@code null}
+     * @param reportLongestRoute  If true, call {@link SOCGameHandler#reportLongestRoadIfChanged}
+     */
+    private void sendPiecePlacedMessages
+        (final SOCGame ga, final String gaName, final int pn, final int pieceType,
+         final int coord, final String plName, final SOCPlayer longestRoutePlayer,
+         final boolean reportLongestRoute)
+    {
+        final String[] builtKeys = {
+            "action.built.road", "action.built.stlmt",
+            "action.built.city", "action.built.ship"
+        };
+
+        srv.gameList.takeMonitorForGame(gaName);
+        try
+        {
+            srv.messageToGameKeyed
+                (ga, true, false, builtKeys[pieceType], plName);
+            srv.messageToGameWithMon
+                (gaName, true, new SOCPutPiece(gaName, pn, pieceType, coord));
+            if (reportLongestRoute)
+                handler.reportLongestRoadIfChanged(ga, longestRoutePlayer, true);
+            if (! ga.pendingMessagesOut.isEmpty())
+                handler.sendGamePendingMessages(ga, false);
+        } finally {
+            srv.gameList.releaseMonitorForGame(gaName);
         }
     }
 
@@ -2857,9 +2963,7 @@ public class SOCGameMessageHandler
         }
     }
 
-
     /// Development Cards ///
-
 
     /**
      * handle "buy dev card request" message.
@@ -3608,9 +3712,7 @@ public class SOCGameMessageHandler
         }
     }
 
-
     /// Inventory Items and Special Items ///
-
 
     /**
      * Special inventory item action (play request) from a player.
