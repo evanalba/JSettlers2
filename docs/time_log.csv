@@ -31,3 +31,4 @@ date,issue_id,issue_title,person,activity,minutes,notes,pr_link
 2026-03-11,36,630:P2 God Class — SOCGame.java,Ricky,verify,30,Ran gradle test; found pickGoldHexResources also calls rollDice_update7gameState,
 2026-03-11,36,630:P2 God Class — SOCGame.java,Ricky,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/49
 2026-03-11,36,630:P2 God Class — SOCGame.java,Ricky,rework,15,Updated pickGoldHexResources to call through diceHandler,
+2026-03-23,34,630:P2 Long Method — handlePUTPIECE in SOCGameMessageHandler,Ricky,rework,15,Added braces to two single-line if blocks per Evan's code review,https://github.com/evanalba/JSettlers2/pull/46
