@@ -2540,9 +2540,13 @@ public class SOCGameMessageHandler
                     if (decline.cancelReply)
                     {
                         if (isBuyAndPut)
+                        {
                             handler.sendGameState(ga);  // is probably now PLACING_*, was PLAY1 or SPECIAL_BUILDING
+                        }
                         if (pieceType != -1)
+                        {
                             srv.messageToPlayer(c, gaName, pn, new SOCCancelBuildRequest(gaName, pieceType));
+                        }
                         if (player.isRobot())
                         {
                             // Set the "force end turn soon" field
