@@ -2381,215 +2381,23 @@ public class SOCGameMessageHandler
                 switch (pieceType)
                 {
                 case SOCPlayingPiece.ROAD:
-
-                    if ((gameState == SOCGame.START1B) || (gameState == SOCGame.START2B) || (gameState == SOCGame.START3B)
-                        || (gameState == SOCGame.PLACING_ROAD)
-                        || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2))
-                    {
-                        if (player.isPotentialRoad(coord) && (player.getNumPieces(SOCPlayingPiece.ROAD) >= 1))
-                        {
-                            final SOCRoad rd = new SOCRoad(player, coord, null);
-                            ga.putPiece(rd);  // Changes game state and (if initial placement) player
-
-                            // If placing this piece reveals a fog hex, putPiece will call srv.gameEvent
-                            // which will send a SOCRevealFogHex message to the game.
-
-                            /*
-                               if (D.ebugOn) {
-                               D.ebugPrintln("AFTER");
-                               for (int pn = 0; pn < SOCGame.MAXPLAYERS; pn++) {
-                               SOCPlayer tmpPlayer = ga.getPlayer(pn);
-                               D.ebugPrintln("Player # "+pn);
-                               for (int i = 0x22; i < 0xCC; i++) {
-                               if (tmpPlayer.isPotentialRoad(i))
-                               D.ebugPrintln("### POTENTIAL ROAD AT "+Integer.toHexString(i));
-                               }
-                               }
-                               }
-                             */
-
-                            sendPiecePlacedMessages(ga, gaName, pn, SOCPlayingPiece.ROAD,
-                                coord, plName, longestRoutePlayer, true);
-
-                            // If needed, call sendTurn or send SOCRollDicePrompt
-                            handler.sendTurnStateAtInitialPlacement(ga, player, c, gameState);
-
-                            int newState = ga.getGameState();
-                            if ((newState == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE)
-                                || (newState == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE))
-                            {
-                                // gold hex revealed from fog (scenario SC_FOG)
-                                handler.sendGameState_sendGoldPickAnnounceText(ga, gaName, c, null);
-                            }
-                        } else {
-                            D.ebugPrintlnINFO("ILLEGAL ROAD: 0x" + Integer.toHexString(coord)
-                                + ": player " + pn);
-                            if (player.isRobot() && D.ebugOn)
-                            {
-                                D.ebugPrintlnINFO(" - pl.isPotentialRoad: " + player.isPotentialRoad(coord));
-                                SOCPlayingPiece pp = ga.getBoard().roadOrShipAtEdge(coord);
-                                D.ebugPrintlnINFO(" - roadAtEdge: " + ((pp != null) ? pp : "none"));
-                            }
-
-                            sendDeclineReason = SOCDeclinePlayerRequest.REASON_LOCATION;
-                            sendDeclineTextKey = "action.build.cannot.there.road";
-                                // "You can't build a road there."
-                            sendCancelReply = true;
-                        }
-                    } else {
-                        sendDeclineReason = SOCDeclinePlayerRequest.REASON_NOT_NOW;
-                        sendDeclineTextKey = "action.build.cannot.now.road";
-                            // "You can't build a road now."
-                    }
-
+                    decline = handlePutRoad
+                        (ga, gaName, player, c, gameState, coord, pn, plName, longestRoutePlayer);
                     break;
 
                 case SOCPlayingPiece.SETTLEMENT:
-
-                    if ((gameState == SOCGame.START1A) || (gameState == SOCGame.START2A)
-                        || (gameState == SOCGame.START3A) || (gameState == SOCGame.PLACING_SETTLEMENT))
-                    {
-                        if (player.canPlaceSettlement(coord) && (player.getNumPieces(SOCPlayingPiece.SETTLEMENT) >= 1))
-                        {
-                            final SOCSettlement se = new SOCSettlement(player, coord, null);
-                            ga.putPiece(se);   // Changes game state and (if initial placement) player
-
-                            sendPiecePlacedMessages(ga, gaName, pn, SOCPlayingPiece.SETTLEMENT,
-                                coord, plName, longestRoutePlayer, true);
-
-                            // Check player and send new game state
-                            if (! handler.checkTurn(c, ga))
-                                handler.sendTurn(ga, false);  // Announce new state and new current player
-                            else
-                                handler.sendGameState(ga);
-
-                            if (ga.hasSeaBoard && (ga.getGameState() == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
-                            {
-                                // Prompt to pick from gold: send text and SOCSimpleRequest(PROMPT_PICK_RESOURCES)
-                                handler.sendGameState_sendGoldPickAnnounceText(ga, gaName, c, null);
-                            }
-                        } else {
-                            D.ebugPrintlnINFO("ILLEGAL SETTLEMENT: 0x" + Integer.toHexString(coord)
-                                + ": player " + pn);
-                            if (player.isRobot() && D.ebugOn)
-                            {
-                                D.ebugPrintlnINFO(" - pl.isPotentialSettlement: "
-                                    + player.isPotentialSettlement(coord));
-                                SOCPlayingPiece pp = ga.getBoard().settlementAtNode(coord);
-                                D.ebugPrintlnINFO(" - settlementAtNode: " + ((pp != null) ? pp : "none"));
-                            }
-
-                            sendDeclineReason = SOCDeclinePlayerRequest.REASON_LOCATION;
-                            sendDeclineTextKey = "action.build.cannot.there.stlmt";
-                                // "You can't build a settlement there."
-                            sendCancelReply = true;
-                        }
-                    } else {
-                        sendDeclineReason = SOCDeclinePlayerRequest.REASON_NOT_NOW;
-                        sendDeclineTextKey = "action.build.cannot.now.stlmt";
-                            // "You can't build a settlement now."
-                    }
-
+                    decline = handlePutSettlement
+                        (ga, gaName, player, c, gameState, coord, pn, plName, longestRoutePlayer);
                     break;
 
                 case SOCPlayingPiece.CITY:
-
-                    if (gameState == SOCGame.PLACING_CITY)
-                    {
-                        if (player.isPotentialCity(coord) && (player.getNumPieces(SOCPlayingPiece.CITY) >= 1))
-                        {
-                            boolean houseRuleFirstCity = ga.isGameOptionSet("N7C") && ! ga.hasBuiltCity();
-                            if (houseRuleFirstCity && ga.isGameOptionSet("N7")
-                                && (ga.getRoundCount() < ga.getGameOptionIntValue("N7")))
-                            {
-                                // If "No 7s for first # rounds" is active, and this isn't its last round, 7s won't
-                                // be rolled soon: Don't announce "Starting next turn, dice rolls of 7 may occur"
-                                houseRuleFirstCity = false;
-                            }
-
-                            final SOCCity ci = new SOCCity(player, coord, null);
-                            ga.putPiece(ci);  // changes game state and maybe player
-
-                            sendPiecePlacedMessages(ga, gaName, pn, SOCPlayingPiece.CITY,
-                                coord, plName, null, false);
-                            if (houseRuleFirstCity)
-                                srv.messageToGameKeyed(ga, true, false, "action.built.nextturn.7.houserule");
-                                // "Starting next turn, dice rolls of 7 may occur (house rule)."
-
-                            // Check player and send new game state
-                            if (! handler.checkTurn(c, ga))
-                                handler.sendTurn(ga, false);  // Announce new state and new current player
-                            else
-                                handler.sendGameState(ga);
-                        } else {
-                            D.ebugPrintlnINFO("ILLEGAL CITY: 0x" + Integer.toHexString(coord)
-                                + ": player " + pn);
-                            if (player.isRobot() && D.ebugOn)
-                            {
-                                D.ebugPrintlnINFO(" - pl.isPotentialCity: " + player.isPotentialCity(coord));
-                                SOCPlayingPiece pp = ga.getBoard().settlementAtNode(coord);
-                                D.ebugPrintlnINFO(" - city/settlementAtNode: " + ((pp != null) ? pp : "none"));
-                            }
-
-                            sendDeclineReason = SOCDeclinePlayerRequest.REASON_LOCATION;
-                            sendDeclineTextKey = "action.build.cannot.there.city";
-                                // "You can't build a city there."
-                            sendCancelReply = true;
-                        }
-                    } else {
-                        sendDeclineReason = SOCDeclinePlayerRequest.REASON_NOT_NOW;
-                        sendDeclineTextKey = "action.build.cannot.now.city";
-                            // "You can't build a city now."
-                    }
-
+                    decline = handlePutCity
+                        (ga, gaName, player, c, gameState, coord, pn, plName);
                     break;
 
                 case SOCPlayingPiece.SHIP:
-
-                    if ((gameState == SOCGame.START1B) || (gameState == SOCGame.START2B) || (gameState == SOCGame.START3B)
-                        || (gameState == SOCGame.PLACING_SHIP)
-                        || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2))
-                    {
-                        // Place it if we can; canPlaceShip checks potentials and pirate ship location
-                        if (ga.canPlaceShip(player, coord) && (player.getNumPieces(SOCPlayingPiece.SHIP) >= 1))
-                        {
-                            final SOCShip sh = new SOCShip(player, coord, null);
-                            ga.putPiece(sh);  // Changes game state and (during initial placement) sometimes player
-
-                            sendPiecePlacedMessages(ga, gaName, pn, SOCPlayingPiece.SHIP,
-                                coord, plName, longestRoutePlayer, true);
-
-                            // If needed, call sendTurn or send SOCRollDicePrompt
-                            handler.sendTurnStateAtInitialPlacement(ga, player, c, gameState);
-
-                            int newState = ga.getGameState();
-                            if ((newState == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE)
-                                || (newState == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE))
-                            {
-                                // gold hex revealed from fog (scenario SC_FOG)
-                                handler.sendGameState_sendGoldPickAnnounceText(ga, gaName, c, null);
-                            }
-                        } else {
-                            D.ebugPrintlnINFO("ILLEGAL SHIP: 0x" + Integer.toHexString(coord)
-                                + ": player " + pn);
-                            if (player.isRobot() && D.ebugOn)
-                            {
-                                D.ebugPrintlnINFO(" - pl.isPotentialShip: " + player.isPotentialShip(coord));
-                                SOCPlayingPiece pp = ga.getBoard().roadOrShipAtEdge(coord);
-                                D.ebugPrintlnINFO(" - ship/roadAtEdge: " + ((pp != null) ? pp : "none"));
-                            }
-
-                            sendDeclineReason = SOCDeclinePlayerRequest.REASON_LOCATION;
-                            sendDeclineTextKey = "action.build.cannot.there.ship";
-                                // "You can't build a ship there."
-                            sendCancelReply = true;
-                        }
-                    } else {
-                        sendDeclineReason = SOCDeclinePlayerRequest.REASON_NOT_NOW;
-                        sendDeclineTextKey = "action.build.cannot.now.ship";
-                            // "You can't build a ship now."
-                    }
-
+                    decline = handlePutShip
+                        (ga, gaName, player, c, gameState, coord, pn, plName, longestRoutePlayer);
                     break;
 
                 default:
@@ -2597,6 +2405,7 @@ public class SOCGameMessageHandler
                         SOCDeclinePlayerRequest.REASON_SPECIFICS,
                         "reply.piece.type.unknown",  // "Unknown piece type."
                         false);
+                    break;
                 }
 
                 if (decline != null)
