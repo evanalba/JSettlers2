@@ -4106,7 +4106,9 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Reveal any fog hexes on the large sea board adjacent to a road, ship,
-     * or initial settlement being placed. Called at start of
+     * or initial settlement being placed. An initial settlement can reveal
+     * 1 to 3 fog hexes, and the placing player can gain a resource from
+     * each revealed hex. Called at start of
      * {@link #putPieceCommon(SOCPlayingPiece, boolean)} before piece is placed on the board.
      *
      * @param pp  The piece being placed
