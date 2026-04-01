@@ -37,3 +37,5 @@ date,issue_id,issue_title,person,activity,minutes,notes,pr_link
 2026-03-24,28,630:P2 Merge if statement with enclosing one,Ricky,review,15,Reviewed PR #53 — combined condition is equivalent; approved,https://github.com/evanalba/JSettlers2/pull/53
 2026-03-24,29,630:P2 Reduce cognitive complexity in updateLongestRoad,Ricky,review,30,Reviewed PR #54 — caught flipped comparison operator in extracted method; requested changes,https://github.com/evanalba/JSettlers2/pull/54
 2026-04-01,38,630:P2 Long Method — putPieceCommon in SOCGame,Ricky,rework,15,Restored fog-hex context in helper comment after Luke's PR feedback,https://github.com/evanalba/JSettlers2/pull/47
+2026-04-01,33,630:P2 Massive switch in SOCMessage.java,Ricky,review,30,Read through map vs old switch; ran gradle test 316/317 (same i18n fail as usual); approved PR #56,https://github.com/evanalba/JSettlers2/pull/56
+2026-04-01,41,630:P2 High complexity initInterface_Options,Ricky,review,30,Checked helper split vs old flow; same 316/317 test run; approved PR #58,https://github.com/evanalba/JSettlers2/pull/58
