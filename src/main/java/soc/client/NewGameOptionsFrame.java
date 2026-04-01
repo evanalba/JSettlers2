@@ -334,6 +334,17 @@ import soc.util.Version;
     private static final SOCStringManager strings = SOCStringManager.getClientManager();
 
     /**
+     * Several action options for sorting game options 
+     * For use in {@link #determineDisplayAction(SOCGameOption, HashMap<String, String)}
+     */
+    enum OptionDisplayAction 
+    {
+        REMOVE,
+        SHOW,
+        SKIP
+    }
+
+    /**
      * Creates a new NewGameOptionsFrame.
      * Once created, resets the mouse cursor from hourglass to normal, and clears main panel's status text.
      *<P>
@@ -789,6 +800,81 @@ import soc.util.Version;
     }
 
     /**
+     * Helper for {@link #initInterface_Options(JPanel, GridBagLayout, GridBagConstraints)}
+     * Determines if an option should be skipped or removed in the sorting loop;
+     * returns an {@link #OptionDisplayAction} for the decision.
+     * @param op
+     * @param sameGroupOpts
+     * @return
+     */
+    private OptionDisplayAction determineDisplayAction
+        (SOCGameOption op, HashMap<String, String> sameGroupOpts)
+    {
+        final boolean hideUnderscoreOpts = ! readOnly;
+
+        if ((! readOnly)
+            && ((op.optType == SOCGameOption.OTYPE_UNKNOWN)
+                || op.hasFlag(SOCGameOption.FLAG_OPPORTUNISTIC_CLIENT_JOIN_ONLY)))
+        {
+            return OptionDisplayAction.REMOVE;
+        }
+
+        if (op.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
+        {
+            if (! readOnly)
+                return OptionDisplayAction.REMOVE;  // don't send inactive options when requesting new game from client
+            return OptionDisplayAction.SKIP;  // <-- Don't show inactive options --
+        }
+
+        if (op.hasFlag(SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY))
+        {
+            if (! readOnly)
+                return OptionDisplayAction.REMOVE;  // ignore internal-property options when requesting new game from client
+            return OptionDisplayAction.SKIP;  // <-- Don't show internal-property options --
+        }
+
+        if (op.key.charAt(0) == '_')
+        {
+            if (hideUnderscoreOpts)
+                return OptionDisplayAction.SKIP;  // <-- Don't show options starting with '_'
+
+            if ((allSc != null) && allSc.containsKey(op.key.substring(1)))
+                return OptionDisplayAction.SKIP;  // <-- Don't show options which are scenario names (use SC dropdown to pick at most one)
+        }
+
+        if (sameGroupOpts.containsKey(op.key))
+            return OptionDisplayAction.SKIP;  // <-- Part of a group: We'll init this opt soon with rest of that group --
+
+        return OptionDisplayAction.SHOW;
+    }
+
+    /**
+     * Sorts options in the same group by their key for more stable ordering
+     * Used as a helper for {@link #initInterface_Options(JPanel, GridBagLayout, GridBagConstraints)} 
+     * @param op
+     * @param sameGroupOpts
+     * @param optGroup
+     * @return
+     */
+    private TreeMap<String, SOCGameOption> sortGroupedOptions
+        (SOCGameOption op, HashMap<String, String> sameGroupOpts, TreeMap<String, SOCGameOption> optGroup)
+    {
+        for (final String kf3 : sameGroupOpts.keySet())
+        {
+            final String kf2 = sameGroupOpts.get(kf3);
+            if ((kf2 == null) || ! kf2.equals(op.key))
+                continue;  // <-- Goes with a a different option --
+
+            SOCGameOption groupHeadOpt = opts.get(kf3);
+            if (groupHeadOpt == null)
+                continue;  // apparently was removed after initializing sameGroupOpts (internal-use opt?)
+            optGroup.put(kf3, groupHeadOpt);
+        }
+
+        return optGroup;
+    }
+
+    /**
      * Interface setup: {@link SOCGameOption}s, user's client preferences, per-game local preferences.
      * Boolean checkboxes go on the left edge; text and int/enum values are to right of checkboxes.
      * One row per option; 3-letter options are grouped under their matching 2-letter ones,
@@ -817,8 +903,6 @@ import soc.util.Version;
      */
     private void initInterface_Options(JPanel bp, GridBagLayout gbl, GridBagConstraints gbc)
     {
-        final boolean hideUnderscoreOpts = ! readOnly;
-
         if (renderNoOptions(bp, gbl, gbc))
             return;  // <---- Early return: no options ----
 
@@ -849,39 +933,14 @@ import soc.util.Version;
         {
             final SOCGameOption op = optArr[i];
 
-            if ((! readOnly)
-                && ((op.optType == SOCGameOption.OTYPE_UNKNOWN)
-                    || op.hasFlag(SOCGameOption.FLAG_OPPORTUNISTIC_CLIENT_JOIN_ONLY)))
+            OptionDisplayAction displayAction = determineDisplayAction(op, sameGroupOpts);
+            if (displayAction == OptionDisplayAction.REMOVE)
             {
                 opts.remove(op.key);
-                continue;  // <-- Removed, Go to next entry --
+                continue;
             }
-
-            if (op.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
-            {
-                if (! readOnly)
-                    opts.remove(op.key);  // don't send inactive options when requesting new game from client
-                continue;  // <-- Don't show inactive options --
-            }
-
-            if (op.hasFlag(SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY))
-            {
-                if (! readOnly)
-                    opts.remove(op.key);  // ignore internal-property options when requesting new game from client
-                continue;  // <-- Don't show internal-property options --
-            }
-
-            if (op.key.charAt(0) == '_')
-            {
-                if (hideUnderscoreOpts)
-                    continue;  // <-- Don't show options starting with '_'
-
-                if ((allSc != null) && allSc.containsKey(op.key.substring(1)))
-                    continue;  // <-- Don't show options which are scenario names (use SC dropdown to pick at most one)
-            }
-
-            if (sameGroupOpts.containsKey(op.key))
-                continue;  // <-- Part of a group: We'll init this opt soon with rest of that group --
+            if (displayAction == OptionDisplayAction.SKIP)
+                continue;
 
             final boolean sharesGroup = sameGroupOpts.containsValue(op.key);
 
@@ -890,21 +949,8 @@ import soc.util.Version;
             {
                 // Group them under this one.
                 // Sort by each opt's key, for stability across localizations.
-
                 optGroup.clear();
-
-                for (final String kf3 : sameGroupOpts.keySet())
-                {
-                    final String kf2 = sameGroupOpts.get(kf3);
-                    if ((kf2 == null) || ! kf2.equals(op.key))
-                        continue;  // <-- Goes with a a different option --
-
-                    SOCGameOption groupHeadOpt = opts.get(kf3);
-                    if (groupHeadOpt == null)
-                        continue;  // apparently was removed after initializing sameGroupOpts (internal-use opt?)
-                    optGroup.put(kf3, groupHeadOpt);
-                }
-
+                optGroup = sortGroupedOptions(op, sameGroupOpts, optGroup);
                 for (final SOCGameOption op3 : optGroup.values())
                     initInterface_OptLine(op3, bp, gbl, gbc);
             }
