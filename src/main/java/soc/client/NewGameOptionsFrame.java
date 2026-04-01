@@ -875,6 +875,21 @@ import soc.util.Version;
     }
 
     /**
+     * Check if there's a default/current scenario; 
+     * if so, set other options' values from it (VP, etc)
+     * Called in {@link #initInterface_Options(JPanel, GridBagLayout, GridBagConstraints)}
+     */
+    private void setScenarioOptions()
+    {
+        if (readOnly)
+            return;
+
+        final SOCGameOption optSC = opts.get("SC");
+        if ((optSC != null) && ! optSC.getStringValue().isEmpty())
+            fireUserChangedOptListeners(optSC, scenDropdown, true, false);
+    }
+
+    /**
      * Interface setup: {@link SOCGameOption}s, user's client preferences, per-game local preferences.
      * Boolean checkboxes go on the left edge; text and int/enum values are to right of checkboxes.
      * One row per option; 3-letter options are grouped under their matching 2-letter ones,
@@ -959,13 +974,7 @@ import soc.util.Version;
 
         initInterface_UserPrefs(bp, gbl, gbc);
 
-        // Check if there's a default/current scenario; if so, set other options' values from it (VP, etc)
-        if (! readOnly)
-        {
-            final SOCGameOption optSC = opts.get("SC");
-            if ((optSC != null) && ! optSC.getStringValue().isEmpty())
-                fireUserChangedOptListeners(optSC, scenDropdown, true, false);
-        }
+        setScenarioOptions();
     }
 
     /**
