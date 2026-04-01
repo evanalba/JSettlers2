@@ -728,6 +728,67 @@ import soc.util.Version;
     }
 
     /**
+     * Renders appropriate interface when no options are given
+     * or the server does not support options; used in the function
+     * {@link #initInterface_Options(JPanel, GridBagLayout, GridBagConstraints)} 
+     * @param bp
+     * @param gbl
+     * @param gbc
+     * @return
+    */
+    private boolean renderNoOptions(JPanel bp, GridBagLayout gbl, GridBagConstraints gbc) 
+    {
+        if (opts == null)
+        {
+            final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
+            JLabel L;
+
+            L = new JLabel(strings.get
+                    ((knownOpts != null)
+                     ? "game.options.none"     // "This game does not use options."
+                     : "game.options.not" ));  // "This server version does not support game options."
+            if (! isOSHighContrast)
+                L.setForeground(SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE);
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            gbl.setConstraints(L, gbc);
+            bp.add(L);
+
+            initInterface_UserPrefs(bp, gbl, gbc);
+
+            return true;
+        }
+        return false;
+    }
+
+    /** 
+     * Look for options that should be grouped together and indented
+     * under another option (based on key length and common prefix)
+     * instead of aligned to the start of a line.
+     * Helper for {@link #initInterface_Options(JPanel, GridBagLayout, GridBagConstraints)}
+     */
+    private HashMap<String, String> groupOptions() 
+    {
+        HashMap<String,String> sameGroupOpts = new HashMap<>();  // key=in-same-group opt, value=opt which heads that group
+        for (final SOCGameOption opt : opts)
+        {
+            final String okey = opt.key;
+            final int kL = okey.length();
+            if ((kL <= 2) || ((opt.optType == SOCGameOption.OTYPE_UNKNOWN) && ! readOnly)
+                || opt.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN)
+                || (opt.hasFlag(SOCGameOption.FLAG_OPPORTUNISTIC_CLIENT_JOIN_ONLY) && ! readOnly))
+                continue;
+
+            final String kf2 = SOCGameOption.getGroupParentKey(okey);
+            if (kf2 == null)
+                continue;
+            SOCGameOption op2 = opts.get(kf2);
+            if ((op2 != null) && ((op2.optType != SOCGameOption.OTYPE_UNKNOWN) || readOnly))
+                sameGroupOpts.put(okey, kf2);
+        }
+        return sameGroupOpts;
+    }
+
+    /**
      * Interface setup: {@link SOCGameOption}s, user's client preferences, per-game local preferences.
      * Boolean checkboxes go on the left edge; text and int/enum values are to right of checkboxes.
      * One row per option; 3-letter options are grouped under their matching 2-letter ones,
@@ -756,27 +817,11 @@ import soc.util.Version;
      */
     private void initInterface_Options(JPanel bp, GridBagLayout gbl, GridBagConstraints gbc)
     {
-        final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
         final boolean hideUnderscoreOpts = ! readOnly;
 
-        JLabel L;
-
-        if (opts == null)
-        {
-            L = new JLabel(strings.get
-                    ((knownOpts != null)
-                     ? "game.options.none"     // "This game does not use options."
-                     : "game.options.not" ));  // "This server version does not support game options."
-            if (! isOSHighContrast)
-                L.setForeground(SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE);
-            gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbl.setConstraints(L, gbc);
-            bp.add(L);
-
-            initInterface_UserPrefs(bp, gbl, gbc);
-
+        if (renderNoOptions(bp, gbl, gbc))
             return;  // <---- Early return: no options ----
-        }
+
         else if (! readOnly)
         {
             for (SOCGameOption opt : opts)
@@ -788,26 +833,7 @@ import soc.util.Version;
 
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Look for options that should be grouped together and indented
-        // under another option (based on key length and common prefix)
-        // instead of aligned to the start of a line.
-        HashMap<String,String> sameGroupOpts = new HashMap<>();  // key=in-same-group opt, value=opt which heads that group
-        for (final SOCGameOption opt : opts)
-        {
-            final String okey = opt.key;
-            final int kL = okey.length();
-            if ((kL <= 2) || ((opt.optType == SOCGameOption.OTYPE_UNKNOWN) && ! readOnly)
-                || opt.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN)
-                || (opt.hasFlag(SOCGameOption.FLAG_OPPORTUNISTIC_CLIENT_JOIN_ONLY) && ! readOnly))
-                continue;
-
-            final String kf2 = SOCGameOption.getGroupParentKey(okey);
-            if (kf2 == null)
-                continue;
-            SOCGameOption op2 = opts.get(kf2);
-            if ((op2 != null) && ((op2.optType != SOCGameOption.OTYPE_UNKNOWN) || readOnly))
-                sameGroupOpts.put(okey, kf2);
-        }
+        HashMap<String, String> sameGroupOpts = groupOptions();
 
         // Sort and lay out options; remove unknowns and internal-onlys from opts.
 
