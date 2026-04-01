@@ -36,3 +36,4 @@ date,issue_id,issue_title,person,activity,minutes,notes,pr_link
 2026-03-24,27,630:P2 Catch Exception instead of Throwable,Ricky,review,15,Reviewed PR #52 — narrowing catch type looks correct; approved,https://github.com/evanalba/JSettlers2/pull/52
 2026-03-24,28,630:P2 Merge if statement with enclosing one,Ricky,review,15,Reviewed PR #53 — combined condition is equivalent; approved,https://github.com/evanalba/JSettlers2/pull/53
 2026-03-24,29,630:P2 Reduce cognitive complexity in updateLongestRoad,Ricky,review,30,Reviewed PR #54 — caught flipped comparison operator in extracted method; requested changes,https://github.com/evanalba/JSettlers2/pull/54
+2026-04-01,38,630:P2 Long Method — putPieceCommon in SOCGame,Ricky,rework,15,Restored fog-hex context in helper comment after Luke's PR feedback,https://github.com/evanalba/JSettlers2/pull/47
