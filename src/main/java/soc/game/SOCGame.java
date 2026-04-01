@@ -9733,7 +9733,7 @@ public class SOCGame implements Serializable, Cloneable
     
     public boolean shouldSkipLongestRoadOwnerRecalculation()
     {
-        return !isAtServer && serverVersion < VERSION_FOR_LONGEST_LARGEST_FROM_SERVER;
+        return !isAtServer && serverVersion >= VERSION_FOR_LONGEST_LARGEST_FROM_SERVER;
     }
     
 
