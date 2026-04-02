@@ -2789,33 +2789,25 @@ import javax.swing.JComponent;
     }
 
     /**
-     * Set the board fields to a new size, and rescale graphics if needed.
-     * Does not call repaint or setSize.
-     * Updates {@link #isScaledOrRotated}, {@link #scaledPanelW}, {@link #panelMarginX}, and other fields.
-     * Calls {@link #rescaleCoordinateArrays()}, {@link #renderBorderedHex(Image, Color)},
-     * and {@link #renderPortImages()}.
-     *
-     * @param newW  New width in pixels, no less than {@link #minSize}.width
-     * @param newH  New height in pixels, no less than {@link #minSize}.height
-     * @throws IllegalArgumentException if newW or newH is below {@link #minSize} but not 0.
-     *   During initial layout, the layoutmanager may cause calls to rescaleBoard(0,0);
-     *   such a call is ignored, no rescaling of graphics is done.
-     * @since 1.1.00
+     * Validate that scale is within requirements
+     * Called in {@link #rescaleBoard(int, int)} to validate height and width
+     * @param newW
+     * @param newH
      */
-    private void rescaleBoard(int newW, int newH)
-        throws IllegalArgumentException
+    private void validateRescaleSize(final int newW, final int newH)
     {
         if ((newW == 0) || (newH == 0))
             return;
+
         if ((newW < minSize.width) || (newH < minSize.height))
             throw new IllegalArgumentException("Below minimum size");
+    }
 
-        /**
-         * Set vars
-         */
-        scaledPanelW = newW;
-        scaledPanelH = newH;
-
+    /**
+     * Updates the board scale; helper for {@link #rescaleBoard(int, int)}
+     */
+    private void updateScale(final int newW, final int newH)
+    {
         scaledBoardW = newW;  // for use in next scaleToActual call
         isScaled = true;      // also needed for that call
         scaledHexesGraphicsSetIndex = hexesGraphicsSetIndex;
@@ -2838,10 +2830,15 @@ import javax.swing.JComponent;
         }
         scaledAt = System.currentTimeMillis();
         isScaledOrRotated = (isScaled || isRotated);
+    }
 
-        /**
-         * Margins and centering board within wider or taller panel
-         */
+    
+    /**
+     * Margins and centering board within wider or taller panel
+     * Should be called in {@link #rescaleBoard(int, int)}
+     */
+    private void setMargins()
+    {
         if (isRotated)
         {
             // Because rotated, scaled on-screen width checks board height
@@ -2870,10 +2867,16 @@ import javax.swing.JComponent;
         panelMarginX += scaleToActual(panelShiftBX);
         panelMarginY += scaleToActual(panelShiftBY);
 
-        /**
-         * Off-screen buffer is now the wrong size.
-         * paintComponent() will create a new one.
-         */
+    }
+
+
+    /**
+     * Off-screen buffer is wrong size after rescale;
+     * paintComponent() will create a new one.
+     * Extracted from {@link #rescaleBoard(int, int)}
+     */
+    private void resetBuffer()
+    {
         if (buffer != null)
         {
             buffer.flush();
@@ -2886,17 +2889,67 @@ import javax.swing.JComponent;
         }
         diceNumberCircleFont = null;
         diceNumberCircleFM = null;
+    }
 
-        /**
-         * Scale coordinate arrays for drawing pieces,
-         * or (if not isScaled) point to static arrays.
-         */
-        rescaleCoordinateArrays();
+    /**
+     * Prepares standard static hexes without resizing;
+     * used in {@link #renderScaledHexesAndPorts()} when
+     * rescaling the hexes is not necessary
+     * @param staticHex
+     * @param borderColors
+     * @param waterBoarderColor
+     */
+    private void useStaticHexes
+        (final BufferedImage[] staticHex, final Color[] borderColors, final Color waterBorderColor)
+    {
+        for (int i = scaledHexes.length - 1; i >= 0; --i)
+            if (i < borderColors.length)
+                scaledHexes[i] = renderBorderedHex(staticHex[i], (i != 0) ? borderColors[i] : waterBorderColor);
+            else
+                scaledHexes[i] = staticHex[i];
+    } 
 
-        /**
-         * Scale and render images, or point to static arrays.
-         * For water hex border color, loops assume SOCBoard.WATER_HEX == index 0 in BC.
-         */
+    /**
+     * Rebuilds hexes with new scale;
+     * used in {@link #renderScaledHexesAndPorts()} when
+     * the standard static hexes need to be rescaled
+     * @param staticHex
+     * @param borderColors
+     * @param waterBorderColor
+     */
+    private void rescaleHexes
+        (final BufferedImage[] staticHex, final Color[] borderColors, final Color waterBorderColor)
+    {
+            final int w = scaleToActual((isRotated) ? HEXHEIGHT : HEXWIDTH),
+                      h = scaleToActual((isRotated) ? HEXWIDTH : HEXHEIGHT);
+
+            for (int i = scaledHexes.length - 1; i >= 0; --i)
+            {
+                if (staticHex[i] != null)
+                {
+                    BufferedImage hi = getScaledImageUp(staticHex[i], w, h);
+                    if (i < borderColors.length)
+                        hi = renderBorderedHex(hi, (i != 0) ? borderColors[i] : waterBorderColor);
+
+                    scaledHexes[i] = hi;
+                    scaledHexFail[i] = false;
+                } else {
+                    scaledHexes[i] = null;
+                    scaledHexFail[i] = true;
+                }
+            }
+
+            for (int i = scaledPorts.length - 1; i >= 0; --i)
+                scaledPortFail[i] = false;
+    }
+
+    /**
+     * Scale and render images, or point to static arrays.
+     * For water hex border color, loops assume SOCBoard.WATER_HEX == index 0 in BC.
+     * Helper for {@link #rescaleBoard(int, int)}
+     */
+    private void renderScaledHexesAndPorts()
+    {
         final BufferedImage[] staticHex;  // hex type images
         final Color[] BC;  // border colors
         final Color waterBC;  // water border color
@@ -2909,42 +2962,57 @@ import javax.swing.JComponent;
             BC = HEX_BORDER_COLORS;
         }
         waterBC = HEX_GRAPHICS_SET_BORDER_WATER_COLORS[hexesGraphicsSetIndex];
-
+        
         if (! (isScaled || isHexesAlwaysScaled))
         {
-            for (int i = scaledHexes.length - 1; i >= 0; --i)
-                if (i < BC.length)
-                    scaledHexes[i] = renderBorderedHex(staticHex[i], (i != 0) ? BC[i] : waterBC);
-                else
-                    scaledHexes[i] = staticHex[i];
+            useStaticHexes(staticHex, BC, waterBC);
         }
         else
         {
-            final int w = scaleToActual((isRotated) ? HEXHEIGHT : HEXWIDTH),
-                      h = scaleToActual((isRotated) ? HEXWIDTH : HEXHEIGHT);
-
-            for (int i = scaledHexes.length - 1; i >= 0; --i)
-            {
-                if (staticHex[i] != null)
-                {
-                    BufferedImage hi = getScaledImageUp(staticHex[i], w, h);
-                    if (i < BC.length)
-                        hi = renderBorderedHex(hi, (i != 0) ? BC[i] : waterBC);
-
-                    scaledHexes[i] = hi;
-                    scaledHexFail[i] = false;
-                } else {
-                    scaledHexes[i] = null;
-                    scaledHexFail[i] = true;
-                }
-            }
-
-            for (int i = scaledPorts.length - 1; i >= 0; --i)
-                scaledPortFail[i] = false;
+            rescaleHexes(staticHex, BC, waterBC);
         }
 
         // Once the port arrowhead arrays and images are scaled, we can draw the 6 port images.
         renderPortImages();
+
+    }
+    
+    /**
+     * Set the board fields to a new size, and rescale graphics if needed.
+     * Does not call repaint or setSize.
+     * Updates {@link #isScaledOrRotated}, {@link #scaledPanelW}, {@link #panelMarginX}, and other fields.
+     * Calls {@link #rescaleCoordinateArrays()}, {@link #renderBorderedHex(Image, Color)},
+     * and {@link #renderPortImages()}.
+     *
+     * @param newW  New width in pixels, no less than {@link #minSize}.width
+     * @param newH  New height in pixels, no less than {@link #minSize}.height
+     * @throws IllegalArgumentException if newW or newH is below {@link #minSize} but not 0.
+     *   During initial layout, the layoutmanager may cause calls to rescaleBoard(0,0);
+     *   such a call is ignored, no rescaling of graphics is done.
+     * @since 1.1.00
+     */
+    private void rescaleBoard(int newW, int newH)
+        throws IllegalArgumentException
+    {
+        validateRescaleSize(newW, newH);
+
+        /**
+         * Set vars
+         */
+        scaledPanelW = newW;
+        scaledPanelH = newH;
+
+        updateScale(newW, newH);
+        setMargins();
+        resetBuffer();
+
+        /**
+         * Scale coordinate arrays for drawing pieces,
+         * or (if not isScaled) point to static arrays.
+         */
+        rescaleCoordinateArrays();
+
+        renderScaledHexesAndPorts();
 
         if ((superText1 != null) && (superTextBox_w > 0))
         {
