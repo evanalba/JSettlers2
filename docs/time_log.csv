@@ -107,6 +107,6 @@ date,issue_id,issue_title,person,activity,minutes,notes,pr_link
 2026-04-02,65,630:P2 [SonarQube] - High complexity in recaleBoard,Luke,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/66
 2026-03-26,36,"630:P2 [Both] God Class smell in SOCGame.java (10,739 lines)",Luke,review,30,Tested locally and reviewed code changes,https://github.com/evanalba/JSettlers2/pull/49
 2026-03-26,35,630:P2 Giant switch in MessageHandler.handle,Luke,review,15,Tested locally and reviewed code changes,https://github.com/evanalba/JSettlers2/pull/48
-2026-03-26,38,630:P2 [ChatGPT] Long Method smell in SOCGame.putPieceCommon (~285 lines),Luke,review,15,Tested locally, reviewed code changes, requested changes - re-reviewed,https://github.com/evanalba/JSettlers2/pull/47
+2026-03-26,38,630:P2 [ChatGPT] Long Method smell in SOCGame.putPieceCommon (~285 lines),Luke,review,15,Tested locally; reviewed code changes; requested changes; re-reviewed,https://github.com/evanalba/JSettlers2/pull/47
 2026-04-02,40,630:P2 [SonarQube] - String owner duplicated 6 times,Ricky,review,15,Spot-checked that refactor preserves identical string values across files, https://github.com/evanalba/JSettlers2/pull/64
 2026-04-02,65,630:P2 [SonarQube] - High complexity in recaleBoard,Ricky,review,15,Light review: rescaleBoard split into helpers,https://github.com/evanalba/JSettlers2/pull/66
