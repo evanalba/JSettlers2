@@ -91,8 +91,19 @@ import soc.util.Version;
      */
     private final boolean canLaunchServer;
 
-    private static final Color HEADER_LABEL_BG = new Color(220,255,220);
-    private static final Color HEADER_LABEL_FG = new Color( 50, 80, 50);
+    /**
+     * Background for the section-header labels on this panel.
+     * Delegates to the shared {@link ClientUITheme#HEADER_LABEL_BG} flyweight
+     * so it stays in sync with other panels (e.g. {@link NewGameOptionsFrame}).
+     */
+    private static final Color HEADER_LABEL_BG = ClientUITheme.HEADER_LABEL_BG;
+
+    /**
+     * Foreground for the section-header labels on this panel.
+     * Uses the muted dark-green {@link ClientUITheme#HEADER_LABEL_FG_MUTED}
+     * for a softer look against {@link ClientUITheme#HEADER_LABEL_BG}.
+     */
+    private static final Color HEADER_LABEL_FG = ClientUITheme.HEADER_LABEL_FG_MUTED;
 
     /**
      * i18n text strings; will use same locale as SOCPlayerClient's string manager.

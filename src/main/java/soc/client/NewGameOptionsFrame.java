@@ -328,9 +328,18 @@ import soc.util.Version;
      */
     private JTextField msgText;
 
-    // // TODO refactor; these are from connectorprac panel
-    private static final Color HEADER_LABEL_BG = new Color(220,255,220);
-    private static final Color HEADER_LABEL_FG = Color.BLACK;
+    /**
+     * Background for the section-header labels in this dialog.
+     * Delegates to the shared {@link ClientUITheme#HEADER_LABEL_BG} flyweight
+     * so it stays in sync with other panels (e.g. {@link SOCConnectOrPracticePanel}).
+     */
+    private static final Color HEADER_LABEL_BG = ClientUITheme.HEADER_LABEL_BG;
+
+    /**
+     * Foreground for the section-header labels in this dialog.
+     * Uses {@link ClientUITheme#HEADER_LABEL_FG_DEFAULT} for maximum contrast.
+     */
+    private static final Color HEADER_LABEL_FG = ClientUITheme.HEADER_LABEL_FG_DEFAULT;
 
     /**
      * i18n text strings; will use same locale as SOCPlayerClient's string manager.
