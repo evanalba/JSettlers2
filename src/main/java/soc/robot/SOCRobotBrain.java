@@ -4855,38 +4855,9 @@ public class SOCRobotBrain extends Thread
         }
         else if (gameState <= SOCGame.START3B)
         {
-            switch (gameState)
-            {
-            case SOCGame.START1A:
-                expectPUTPIECE_FROM_START1A = false;
-                expectSTART1A = true;
-                break;
-
-            case SOCGame.START1B:
-                expectPUTPIECE_FROM_START1B = false;
-                expectSTART1B = true;
-                break;
-
-            case SOCGame.START2A:
-                expectPUTPIECE_FROM_START2A = false;
-                expectSTART2A = true;
-                break;
-
-            case SOCGame.START2B:
-                expectPUTPIECE_FROM_START2B = false;
-                expectSTART2B = true;
-                break;
-
-            case SOCGame.START3A:
-                expectPUTPIECE_FROM_START3A = false;
-                expectSTART3A = true;
-                break;
-
-            case SOCGame.START3B:
-                expectPUTPIECE_FROM_START3B = false;
-                expectSTART3B = true;
-                break;
-            }
+            final InitialPlacementPhase phase = InitialPlacementPhase.fromGameState(gameState);
+            if (phase != null)
+                revertToAwaitingInitialPhase(phase);
             // The run loop will check if failedBuildingAttempts > (2 * MAX_DENIED_BUILDING_PER_TURN).
             // This bot will leave the game there if it can't recover.
         } else {
@@ -4903,6 +4874,80 @@ public class SOCRobotBrain extends Thread
                 resetBuildingPlan();
             }
         }
+    }
+
+    /**
+     * Clear the "I already sent a {@code PUTPIECE} for this phase" flag and
+     * set the "I'm waiting for the game to be in this phase" flag for the
+     * supplied {@link InitialPlacementPhase}.
+     *<P>
+     * This encapsulates what used to be a six-arm {@code switch} that flipped
+     * two booleans per game-state constant in {@link #handleCANCELBUILDREQUEST(SOCCancelBuildRequest)}.
+     * Centralising the transition here means new or renamed initial-placement
+     * phases only need to be wired up in {@link InitialPlacementPhase} and in
+     * this single method, instead of in every caller.
+     *<P>
+     * Package-visible so {@link SOCRobotDM} and other teammates of the brain
+     * can consume the same transition while the remaining inline flag
+     * manipulations are migrated over time (tracked in follow-up PRs).
+     *
+     * @param phase the phase to revert to; must not be {@code null}
+     * @since 2.8.00
+     */
+    void revertToAwaitingInitialPhase(final InitialPlacementPhase phase)
+    {
+        switch (phase)
+        {
+        case START1A:
+            expectPUTPIECE_FROM_START1A = false;
+            expectSTART1A = true;
+            break;
+        case START1B:
+            expectPUTPIECE_FROM_START1B = false;
+            expectSTART1B = true;
+            break;
+        case START2A:
+            expectPUTPIECE_FROM_START2A = false;
+            expectSTART2A = true;
+            break;
+        case START2B:
+            expectPUTPIECE_FROM_START2B = false;
+            expectSTART2B = true;
+            break;
+        case START3A:
+            expectPUTPIECE_FROM_START3A = false;
+            expectSTART3A = true;
+            break;
+        case START3B:
+            expectPUTPIECE_FROM_START3B = false;
+            expectSTART3B = true;
+            break;
+        }
+    }
+
+    /**
+     * Return the {@link InitialPlacementPhase} the brain is currently
+     * expecting (i.e. the phase whose {@code expectSTARTxY} flag is set),
+     * or {@code null} if the brain is not in the initial-placement sequence
+     * or is between phases.
+     *<P>
+     * Reads the existing {@code expectSTARTxY} boolean fields; those remain
+     * the canonical storage for now so that subclasses keep their
+     * protected-field view. Future PRs are expected to migrate that storage
+     * fully behind this enum-based state object.
+     *
+     * @return the current expected initial-placement phase, or {@code null}
+     * @since 2.8.00
+     */
+    InitialPlacementPhase currentExpectedInitialPhase()
+    {
+        if (expectSTART1A) return InitialPlacementPhase.START1A;
+        if (expectSTART1B) return InitialPlacementPhase.START1B;
+        if (expectSTART2A) return InitialPlacementPhase.START2A;
+        if (expectSTART2B) return InitialPlacementPhase.START2B;
+        if (expectSTART3A) return InitialPlacementPhase.START3A;
+        if (expectSTART3B) return InitialPlacementPhase.START3B;
+        return null;
     }
 
     /**
