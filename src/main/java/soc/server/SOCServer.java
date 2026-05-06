@@ -4622,6 +4622,103 @@ public class SOCServer extends Server
     }
 
     /**
+     * Template method for variants of messageToGame methods, excepting keyed versions
+     * Used by:
+     * {@link #messageToGame(String, boolean, SOCMessage)}
+     * {@link #messageToGame(String, boolean, String)}
+     * {@link #messageToGameWithMon(String, boolean, SOCMessage)}
+     * {@link #messageToGameExcept(String, Connection, int, SOCMessage, boolean)}
+     * {@link #messageToGameExcept(String, List<Connection>, int[], SOCMessage, boolean)}
+     * {@link #messageToGameForVersionsExcept(SOCGame, int, int, List<Connection>, SOCMessage, boolean)}
+     */
+    private abstract class GameMessageTemplate
+    {
+        private final String gameName;
+        private final boolean takeMon;
+        private final String debugName;
+
+        GameMessageTemplate(final String gameName, final boolean takeMon, final String debugName)
+        {
+            this.gameName = gameName;
+            this.takeMon = takeMon;
+            this.debugName = debugName;
+        }
+
+        /**
+         * The template method.
+         * This defines the invariant algorithm used by the messageToGame family.
+         */
+        public final void send()
+        {
+            if (! shouldContinue())
+                return;
+
+            recordEvent();
+
+            if (takeMon)
+                gameList.takeMonitorForGame(gameName);
+
+            try
+            {
+                Vector<Connection> members = gameList.getMembers(gameName);
+                if (members == null)
+                    return;
+
+                beforeLoop();
+
+                Enumeration<Connection> menum = members.elements();
+                while (menum.hasMoreElements())
+                {
+                    Connection c = menum.nextElement();
+
+                    if (! shouldSend(c))
+                        continue;
+
+                    sendTo(c);
+                }
+
+                afterLoop();
+            }
+            catch (Throwable e)
+            {
+                D.ebugPrintStackTrace(e, "Exception in " + debugName);
+            }
+            finally
+            {
+                if (takeMon)
+                    gameList.releaseMonitorForGame(gameName);
+            }
+        }
+
+        protected boolean shouldContinue()
+        {
+            return true;
+        }
+
+        protected void recordEvent()
+        {
+        }
+
+        protected void beforeLoop()
+        {
+        }
+
+        protected void afterLoop()
+        {
+        }
+
+        protected boolean shouldSend(final Connection c)
+        {
+            if (c != null)
+                return true;
+            else
+                return false;
+        }
+
+        protected abstract void sendTo(Connection c);
+    }
+
+    /**
      * Send a message to the given game.
      *<P>
      * <b>Locks:</b> Takes, releases {@link SOCGameList#takeMonitorForGame(String)}.
@@ -4660,44 +4757,34 @@ public class SOCServer extends Server
      * @see #messageToGameForVersions(SOCGame, int, int, SOCMessage, boolean)
      * @since 2.5.00
      */
+
     public void messageToGame(final String gameName, final boolean isEvent, final SOCMessage mes)
     {
-        if (isEvent)
-            recordGameEvent(gameName, mes);
-
-        final String mesCmd = mes.toCmd();
-
-        gameList.takeMonitorForGame(gameName);
-
-        try
+        new GameMessageTemplate(gameName, true, "messageToGame")
         {
-            Vector<Connection> v = gameList.getMembers(gameName);
+            private String mesCmd;
 
-            if (v != null)
+            @Override
+            protected void recordEvent()
             {
-                //D.ebugPrintln("M2G - "+mes);
-                Enumeration<Connection> menum = v.elements();
-
-                while (menum.hasMoreElements())
-                {
-                    Connection c = menum.nextElement();
-
-                    if (c != null)
-                    {
-                        //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", c.getData()));
-                        c.put(mesCmd);
-                    }
-                }
+                if (isEvent)
+                    recordGameEvent(gameName, mes);
             }
-        }
-        catch (Exception e)
-        {
-            D.ebugPrintStackTrace(e, "Exception in messageToGame");
-        }
 
-        gameList.releaseMonitorForGame(gameName);
+            @Override
+            protected void beforeLoop()
+            {
+                mesCmd = mes.toCmd();
+            }
+
+            @Override
+            protected void sendTo(final Connection c)
+            {
+                c.put(mesCmd);
+            }
+        }.send();
     }
-
+    
     /**
      * Send a server text message to the given game.
      * Equivalent to: messageToGame(ga, new SOCGameServerText(ga, txt));
@@ -4758,42 +4845,33 @@ public class SOCServer extends Server
     public void messageToGame(final String ga, final boolean isEvent, final String txt)
     {
         final SOCGameServerText msg = new SOCGameServerText(ga, txt);
-        final String gameServTxtMsg = msg.toCmd();
 
-        if (isEvent)
-            recordGameEvent(ga, msg);
-
-        gameList.takeMonitorForGame(ga);
-
-        try
+        new GameMessageTemplate(ga, true, "messageToGame")
         {
-            Vector<Connection> v = gameList.getMembers(ga);
+            private String gameServTxtMsg;
 
-            if (v != null)
+            @Override
+            protected void recordEvent()
             {
-                Enumeration<Connection> menum = v.elements();
-
-                while (menum.hasMoreElements())
-                {
-                    Connection c = menum.nextElement();
-                    if (c != null)
-                    {
-                        if (c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
-                            c.put(gameServTxtMsg);
-                        else
-                            c.put(new SOCGameTextMsg(ga, SERVERNAME, txt));
-                    }
-                }
+                if (isEvent)
+                    recordGameEvent(ga, msg);
             }
-        }
-        catch (Throwable e)
-        {
-            D.ebugPrintStackTrace(e, "Exception in messageToGame");
-        }
-        finally
-        {
-            gameList.releaseMonitorForGame(ga);
-        }
+
+            @Override
+            protected void beforeLoop()
+            {
+                gameServTxtMsg = msg.toCmd();
+            }
+
+            @Override
+            protected void sendTo(final Connection c)
+            {
+                if (c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
+                    c.put(gameServTxtMsg);
+                else
+                    c.put(new SOCGameTextMsg(ga, SERVERNAME, txt));
+            }
+        }.send();
     }
 
     /**
@@ -5385,27 +5463,30 @@ public class SOCServer extends Server
      */
     public void messageToGameWithMon(final String gameName, final boolean isEvent, final SOCMessage mes)
     {
-        if (isEvent)
-            recordGameEvent(gameName, mes);
-
-        Vector<Connection> v = gameList.getMembers(gameName);
-        if (v == null)
-            return;
-
-        //D.ebugPrintln("M2G - "+mes);
-        final String mesCmd = mes.toCmd();
-        Enumeration<Connection> menum = v.elements();
-
-        while (menum.hasMoreElements())
+        new GameMessageTemplate(gameName, false, "messageToGameWithMon")
         {
-            Connection c = menum.nextElement();
+            private String mesCmd;
 
-            if (c != null)
+            @Override
+            protected void recordEvent()
+            {
+                if (isEvent)
+                    recordGameEvent(gameName, mes);
+            }
+
+            @Override
+            protected void beforeLoop()
+            {
+                mesCmd = mes.toCmd();
+            }
+
+            @Override
+            protected void sendTo(final Connection c)
             {
                 //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", c.getData()));
                 c.put(mesCmd);
             }
-        }
+        }.send();
     }
 
     /**
@@ -5456,45 +5537,38 @@ public class SOCServer extends Server
      * @see #messageToGameForVersionsExcept(SOCGame, int, int, List, SOCMessage, boolean)
      */
     public void messageToGameExcept
-        (final String gn, final List<Connection> ex, final int[] eventExclPNs, final SOCMessage mes, final boolean takeMon)
+    (final String gn, final List<Connection> ex, final int[] eventExclPNs,
+     final SOCMessage mes, final boolean takeMon)
     {
-        if (eventExclPNs != null)
-            recordGameEventNotTo(gn, eventExclPNs, mes);
-
-        if (takeMon)
-            gameList.takeMonitorForGame(gn);
-
-        try
+        new GameMessageTemplate(gn, takeMon, "messageToGameExcept")
         {
-            Vector<Connection> v = gameList.getMembers(gn);
+            private String mesCmd;
 
-            if (v != null)
+            @Override
+            protected void recordEvent()
             {
-                //D.ebugPrintln("M2GE - "+mes);
-                final String mesCmd = mes.toCmd();
-                Enumeration<Connection> menum = v.elements();
-
-                while (menum.hasMoreElements())
-                {
-                    Connection con = menum.nextElement();
-
-                    if ((con != null) && ! ex.contains(con))
-                    {
-                        //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", con.getData()));
-                        con.put(mesCmd);
-                    }
-                }
+                if (eventExclPNs != null)
+                    recordGameEventNotTo(gn, eventExclPNs, mes);
             }
-        }
-        catch (Exception e)
-        {
-            D.ebugPrintStackTrace(e, "Exception in messageToGameExcept");
-        }
-        finally
-        {
-            if (takeMon)
-                gameList.releaseMonitorForGame(gn);
-        }
+
+            @Override
+            protected void beforeLoop()
+            {
+                mesCmd = mes.toCmd();
+            }
+
+            @Override
+            protected boolean shouldSend(final Connection c)
+            {
+                return ((c == null) || (c == ex)) ? false : true;
+            }
+
+            @Override
+            protected void sendTo(final Connection c)
+            {
+                c.put(mesCmd);
+            }
+        }.send();
     }
 
     /**
@@ -5513,46 +5587,40 @@ public class SOCServer extends Server
      * @see #messageToGameForVersionsExcept(SOCGame, int, int, Connection, SOCMessage, boolean)
      * @since 1.1.00
      */
-    public void messageToGameExcept(String gn, Connection ex, final int eventExclPN, SOCMessage mes, boolean takeMon)
+    public void messageToGameExcept
+    (final String gn, final Connection ex, final int eventExclPN, final SOCMessage mes, final boolean takeMon)
     {
-        if (eventExclPN != PN_NON_EVENT)
-            recordGameEventNotTo(gn, eventExclPN, mes);
-
-        if (takeMon)
-            gameList.takeMonitorForGame(gn);
-
-        try
+        new GameMessageTemplate(gn, takeMon, "messageToGameExcept")
         {
-            Vector<Connection> v = gameList.getMembers(gn);
+            private String mesCmd;
 
-            if (v != null)
+            @Override
+            protected void recordEvent()
             {
-                //D.ebugPrintln("M2GE - "+mes);
-                final String mesCmd = mes.toCmd();
-                Enumeration<Connection> menum = v.elements();
-
-                while (menum.hasMoreElements())
-                {
-                    Connection con = menum.nextElement();
-                    if ((con == null) || (con == ex))
-                        continue;
-
-                    //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", con.getData()));
-                    con.put(mesCmd);
-                }
+                if (eventExclPN != PN_NON_EVENT)
+                    recordGameEventNotTo(gn, eventExclPN, mes);
             }
-        }
-        catch (Exception e)
-        {
-            D.ebugPrintStackTrace(e, "Exception in messageToGameExcept");
-        }
-        finally
-        {
-            if (takeMon)
-                gameList.releaseMonitorForGame(gn);
-        }
-    }
 
+            @Override
+            protected void beforeLoop()
+            {
+                mesCmd = mes.toCmd();
+            }
+
+            @Override
+            protected boolean shouldSend(final Connection c)
+            {
+                return ((c == null) || (c == ex)) ? false : true;
+            }
+
+            @Override
+            protected void sendTo(final Connection c)
+            {
+                c.put(mesCmd);
+            }
+        }.send();
+    }
+    
     /**
      * Send a message to all the connections in a game in a certain version range.
      * Used for backwards compatibility.
@@ -5642,53 +5710,45 @@ public class SOCServer extends Server
      * @see #messageToGameForVersionsKeyedExcept(SOCGame, int, int, boolean, List, boolean, String, Object...)
      */
     public final void messageToGameForVersionsExcept
-        (final SOCGame ga, final int vmin, final int vmax, final List<Connection> ex,
-         final SOCMessage mes, final boolean takeMon)
+    (final SOCGame ga, final int vmin, final int vmax, final List<Connection> ex,
+     final SOCMessage mes, final boolean takeMon)
     {
-        if ((ga.clientVersionLowest > vmax) || (ga.clientVersionHighest < vmin))
-            return;  // <--- All clients too old or too new ---
-
-        // Some code here is similar to messageToGameForVersionsKeyed, messageToGameForVersionsKeyedExcept:
-        // If you change code here, consider changing it there too
-
-        final String gaName = ga.getName();
-
-        if (takeMon)
-            gameList.takeMonitorForGame(gaName);
-
-        try
+        new GameMessageTemplate(ga.getName(), takeMon, "messageToGameForVersionsExcept")
         {
-            Vector<Connection> v = gameList.getMembers(gaName);
-            if (v == null)
-                return;
+            private String mesCmd;
 
-            String mesCmd = null;  // lazy init, will be mes.toCmd()
-            final Enumeration<Connection> menum = v.elements();
-            while (menum.hasMoreElements())
+            @Override
+            protected boolean shouldContinue()
             {
-                final Connection c = menum.nextElement();
+                if ((ga.clientVersionLowest > vmax) || (ga.clientVersionHighest < vmin))
+                    return false;  // <--- All clients too old or too new ---
+                else {
+                    return true;
+                }
+            }
+
+            @Override
+            protected boolean shouldSend(final Connection c)
+            {
                 if ((c == null) || ((ex != null) && ex.contains(c)))
-                    continue;
+                    return false;
 
                 final int cv = c.getVersion();
                 if ((cv < vmin) || (cv > vmax))
-                    continue;
+                    return false;
+                
+                return true;
+            }
 
+            @Override
+            protected void sendTo(final Connection c)
+            {
                 //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", con.getData()));
                 if (mesCmd == null)
                     mesCmd = mes.toCmd();
                 c.put(mesCmd);
             }
-        }
-        catch (Exception e)
-        {
-            D.ebugPrintStackTrace(e, "Exception in messageToGameForVersionsExcept");
-        }
-        finally
-        {
-            if (takeMon)
-                gameList.releaseMonitorForGame(gaName);
-        }
+        }.send();
     }
 
     /**
