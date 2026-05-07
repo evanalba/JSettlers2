@@ -218,6 +218,112 @@ public class GameAction
     }
 
     /**
+     * Builder for GameAction constructor; does not yet
+     * replace the current constructors
+     * 
+     * @param aType GameAction type of the action; should not be null
+     */
+    public static Builder builder(final ActionType aType)
+    {
+        return new Builder(aType);
+    }
+
+    public static class Builder
+    {
+        private final ActionType actType;
+
+        private int param1;
+        private int param2;
+        private int param3;
+
+        private ResourceSet rset1;
+        private ResourceSet rset2;
+
+        private List<Effect> effects;
+
+        private Builder(final ActionType aType)
+        {
+            if (aType == null)
+                throw new IllegalArgumentException("aType");
+
+            actType = aType;
+        }
+
+        public Builder params(final int p1, final int p2, final int p3)
+        {
+            param1 = p1;
+            param2 = p2;
+            param3 = p3;
+            return this;
+        }
+
+        public Builder param1(final int p1)
+        {
+            param1 = p1;
+            return this;
+        }
+
+        public Builder param2(final int p2)
+        {
+            param2 = p2;
+            return this;
+        }
+
+        public Builder param3(final int p3)
+        {
+            param3 = p3;
+            return this;
+        }
+
+        public Builder resourceSets(final ResourceSet rs1, final ResourceSet rs2)
+        {
+            rset1 = rs1;
+            rset2 = rs2;
+            return this;
+        }
+
+        public Builder resourceSet1(final ResourceSet rs1)
+        {
+            rset1 = rs1;
+            return this;
+        }
+
+        public Builder resourceSet2(final ResourceSet rs2)
+        {
+            rset2 = rs2;
+            return this;
+        }
+
+        public Builder effects(final List<Effect> effects)
+        {
+            this.effects = effects;
+            return this;
+        }
+
+        public GameAction build()
+        {
+            return new GameAction(actType, param1, param2, param3, rset1, rset2, effects);
+        }
+    }
+
+    /**
+     * Builder-based version of {@link #GameAction(final GameAction copyFrom, ActionType aType, final int p1, final int p2, final int p3)},
+     * which makes a copy of a GameAction, as mentioned in its comments
+     * @param copyFrom
+     * @return
+     */
+    public static Builder copyOf(final GameAction copyFrom, final ActionType aType)
+    {
+        if (copyFrom == null)
+            throw new NullPointerException("copyFrom");
+
+        return new Builder(aType)
+            .params(copyFrom.param1, copyFrom.param2, copyFrom.param3)
+            .resourceSets(copyFrom.rset1, copyFrom.rset2)
+            .effects(copyFrom.effects);
+    }
+
+    /**
      * Contents for debugging, formatted like:
      *<pre>
      * GameAction(ROLL_DICE, p1=12)

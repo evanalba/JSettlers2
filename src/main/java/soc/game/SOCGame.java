@@ -4942,8 +4942,7 @@ public class SOCGame implements Serializable, Cloneable
         if ((lastAction != null) && (lastAction.actType == ActionType.BUILD_PIECE))
         {
             // change lastAction from BUILD_PIECE to MOVE_PIECE, but keep anything like revealed fog hex info
-            final GameAction moveAction = new GameAction
-                (lastAction, ActionType.MOVE_PIECE, sh.getType(), fromEdge, toEdge);
+            final GameAction moveAction = GameAction.copyOf(lastAction, ActionType.MOVE_PIECE).params(sh.getType(), fromEdge, toEdge).build();
             moveAction.cannotUndoReason = lastAction.cannotUndoReason;
             lastAction = moveAction;
         }
@@ -8448,7 +8447,7 @@ public class SOCGame implements Serializable, Cloneable
             // trade is undo
             lastAction = null;
         } else {
-            lastAction = new GameAction(ActionType.TRADE_BANK, give, get);
+            lastAction = GameAction.builder(ActionType.TRADE_BANK).resourceSets(give, get).build();
         }
 
         currPlayer.makeBankTrade(give, get);
