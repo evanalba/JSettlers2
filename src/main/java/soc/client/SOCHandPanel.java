@@ -57,6 +57,8 @@ import java.util.ArrayList;
 import java.util.MissingResourceException;
 import java.util.Timer;  // For auto-roll
 import java.util.TimerTask;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -1241,6 +1243,9 @@ import javax.swing.UIManager;
             }
         }
 
+        // Initialize command registry
+        initActionCommands();
+
         // set the starting state of the panel
         removePlayer();
     }
@@ -1309,197 +1314,336 @@ import javax.swing.UIManager;
     }
 
     /**
-     * handle interaction
+     * Command registry for HandPanel actions,
+     * executes specific methods based on ActionEvent
      */
-    public void actionPerformed(ActionEvent e)
+    private static abstract class HandPanelCommand
     {
-        try {
-        String target = e.getActionCommand();
+        abstract void execute(SOCHandPanel hp, ActionEvent e);
+    }
 
-        if (target == LOCKSEAT)
-        {
-            // Seat Lock while game forming (gamestate NEW); see below for ROBOTLOCKBUT_L etc
-            messageSender.setSeatLock(game, playerNumber, SOCGame.SeatLockState.LOCKED);
-        }
-        else if (target == UNLOCKSEAT)
-        {
-            // Unlock while game forming
-            messageSender.setSeatLock(game, playerNumber, SOCGame.SeatLockState.UNLOCKED);
-        }
-        else if (target == TAKEOVER)
-        {
-            messageSender.sitDown(game, playerNumber);
-        }
-        else if (target == SIT)
-        {
-            messageSender.sitDown(game, playerNumber);
-        }
-        else if ((target == START) && startBut.isVisible())
-        {
-            messageSender.startGame(game);
+    /**
+     * Maps for command registry
+     */
+    private final Map<String, HandPanelCommand> actionCommands = new HashMap<String, HandPanelCommand>();
+    private final Map<Object, HandPanelCommand> sourceCommands = new HashMap<Object, HandPanelCommand>();
 
-            // checks isVisible to guard against button action from hitting spacebar
-            // when hidden but has focus because startBut is the first button added to panel;
-            // this bug seen on OSX 10.9.1 (1.5.0 JVM)
-        }
-        else if (target == ROBOT)
+    /**
+     * Maps ActionEvents to their corresponding method
+     */
+    private void initActionCommands()
+    {
+        actionCommands.put(LOCKSEAT, new LockSeatCommand());
+        actionCommands.put(UNLOCKSEAT, new UnlockSeatCommand());
+        actionCommands.put(TAKEOVER, new SitCommand());
+        actionCommands.put(SIT, new SitCommand());
+        actionCommands.put(START, new StartGameCommand());
+        actionCommands.put(ROBOT, new RobotCommand());
+        actionCommands.put(ROLL, new RollCommand());
+        actionCommands.put(QUIT, new QuitCommand());
+        actionCommands.put(DONE, new DoneCommand());
+        actionCommands.put(DONE_RESTART, new DoneRestartCommand());
+        actionCommands.put(CLEAR, new ClearCommand());
+        actionCommands.put(BANK, new BankCommand());
+        actionCommands.put(BANK_UNDO, new BankUndoCommand());
+        actionCommands.put(ROBOTLOCKBUT_L, new RobotSeatLockCommand(SOCGame.SeatLockState.LOCKED));
+        actionCommands.put(ROBOTLOCKBUT_U, new RobotSeatLockCommand(SOCGame.SeatLockState.UNLOCKED));
+        actionCommands.put(ROBOTLOCKBUT_M, new RobotSeatLockCommand(SOCGame.SeatLockState.CLEAR_ON_RESET));
+        actionCommands.put(SEND, new SendCommand());
+
+        // Card plays determined by source command rather than action command
+        sourceCommands.put(playCardBut, new PlayCardCommand());
+        sourceCommands.put(inventory, new PlayCardCommand());
+    }
+
+    /**
+     * Seat Lock while game forming (gamestate NEW); see below for ROBOTLOCKBUT options
+     */
+    private static class LockSeatCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
         {
+            hp.messageSender.setSeatLock(hp.game, hp.playerNumber, SOCGame.SeatLockState.LOCKED);
+        }
+    }
+    
+    /** 
+     * Unlock while game forming
+     */
+    private static class UnlockSeatCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.messageSender.setSeatLock(hp.game, hp.playerNumber, SOCGame.SeatLockState.UNLOCKED);
+        }
+    }
+
+    private static class SitCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.messageSender.sitDown(hp.game, hp.playerNumber);
+        }
+    }
+
+    /**
+     * checks isVisible to guard against button action from hitting spacebar
+     * when hidden but has focus because startBut is the first button added to panel;
+     * this bug seen on OSX 10.9.1 (1.5.0 JVM)
+     */
+    private static class StartGameCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            if (hp.startBut.isVisible())
+                hp.messageSender.startGame(hp.game);
+        }
+    }
+
+    private static class RobotCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            // Existing code had the following already commented out: 
             // cf.cc.addRobot(cf.cname, playerNum);
         }
-        else if (target == ROLL)
-        {
-            if (autoRollTimerTask != null)
-            {
-                autoRollTimerTask.cancel();
-                autoRollTimerTask = null;
-            }
-            clickRollButton();
-        }
-        else if (target == QUIT)
-        {
-            SOCQuitConfirmDialog.createAndShow(playerInterface.getMainDisplay(), playerInterface);
-        }
-        else if (target == DONE)
-        {
-            clickDoneButton();
-        }
-        else if (target == DONE_RESTART)
-        {
-            playerInterface.resetBoardRequest(game.isPractice && ! game.isInitialPlacement());
-        }
-        else if (target == CLEAR)
-        {
-            clearOffer(true);    // Zero the square panel numbers, unless board-reset vote in progress
-            if (game.getGameState() == SOCGame.PLAY1)
-            {
-                messageSender.clearOffer(game);
-            }
-        }
-        else if (target == BANK)
-        {
-            int gstate = game.getGameState();
-            if (gstate == SOCGame.PLAY1)
-            {
-                int[] give = new int[5];
-                int[] get = new int[5];
-                sqPanel.getValues(give, get);
-                createSendBankTradeRequest(give, get, true);
-            }
-            else if (gstate == SOCGame.OVER)
-            {
-                String msg = game.gameOverMessageToPlayer(player);
-                    // msg = "The game is over; you are the winner!";
-                    // msg = "The game is over; <someone> won.";
-                    // msg = "The game is over; no one won.";
-                playerInterface.print(msg, true);
-            }
-        }
-        else if (target == BANK_UNDO)
-        {
-            if ((bankGive != null) && (bankGet != null))
-            {
-                messageSender.bankTrade(game, bankGet, bankGive);  // undo by reversing previous request
-                bankGive = null;
-                bankGet = null;
-                bankUndoBut.setEnabled(false);
-            }
-        }
-        else if (target == ROBOTLOCKBUT_L)
-        {
-            // Seat Lock while game in progress; see above for UNLOCKSEAT etc
-            clickRobotSeatLockButton(SOCGame.SeatLockState.LOCKED);
-        }
-        else if (target == ROBOTLOCKBUT_U)
-        {
-            clickRobotSeatLockButton(SOCGame.SeatLockState.UNLOCKED);
-        }
-        else if (target == ROBOTLOCKBUT_M)
-        {
-            clickRobotSeatLockButton(SOCGame.SeatLockState.CLEAR_ON_RESET);
-        }
-        else if (target == SEND)
-        {
-            if (playerTradingDisabled)
-                return;
+    }
 
-            if (game.getGameState() == SOCGame.PLAY1)
+    private static class RollCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            if (hp.autoRollTimerTask != null)
             {
-                int[] give = new int[5];
-                int[] get = new int[5];
-                int giveSum = 0;
-                int getSum = 0;
-                sqPanel.getValues(give, get);
+                hp.autoRollTimerTask.cancel();
+                hp.autoRollTimerTask = null;
+            }
 
-                for (int i = 0; i < 5; i++)
+            hp.clickRollButton();
+        }
+    }
+
+    private static class QuitCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            SOCQuitConfirmDialog.createAndShow(hp.playerInterface.getMainDisplay(), hp.playerInterface);
+        }
+    }
+
+    private static class DoneCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.clickDoneButton();
+        }
+    }
+
+    private static class DoneRestartCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.playerInterface.resetBoardRequest(hp.game.isPractice && ! hp.game.isInitialPlacement());
+        }
+    }
+
+    private static class ClearCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.clearOffer(true);    // Zero the square panel numbers, unless board-reset vote in progress
+            if (hp.game.getGameState() == SOCGame.PLAY1)
+            {
+                hp.messageSender.clearOffer(hp.game);
+            }
+        }
+    }
+
+    private static class BankCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.handleBankAction();
+        }
+    }
+
+    private static class BankUndoCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.handleBankUndoAction();
+        }
+    }
+
+    private static class RobotSeatLockCommand extends HandPanelCommand
+    {
+        private final SOCGame.SeatLockState current;
+
+        RobotSeatLockCommand(final SOCGame.SeatLockState current)
+        {
+            this.current = current;
+        }
+
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.clickRobotSeatLockButton(current);
+        }
+    }
+
+    private static class SendCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.handleSendAction();
+        }
+    }
+
+    private static class PlayCardCommand extends HandPanelCommand
+    {
+        void execute(SOCHandPanel hp, ActionEvent e)
+        {
+            hp.clickPlayCardButton();
+        }
+    }
+    
+    /**
+     * Handles the logic for when the BANK action is called
+     * Extracted from {@link #actionPerformed(ActionEvent)}
+     */
+    private void handleBankAction()
+    {
+        int gstate = game.getGameState();
+        if (gstate == SOCGame.PLAY1)
+        {
+            int[] give = new int[5];
+            int[] get = new int[5];
+            sqPanel.getValues(give, get);
+            createSendBankTradeRequest(give, get, true);
+        }
+        else if (gstate == SOCGame.OVER)
+        {
+            String msg = game.gameOverMessageToPlayer(player);
+                // msg = "The game is over; you are the winner!";
+                // msg = "The game is over; <someone> won.";
+                // msg = "The game is over; no one won.";
+            playerInterface.print(msg, true);
+        }
+    }
+
+    /**
+     * Handles the logic for when the BANK_UNDO action is called
+     * Extracted from {@link #actionPerformed(ActionEvent))} 
+     */
+    private void handleBankUndoAction()
+    {
+
+        if ((bankGive != null) && (bankGet != null))
+        {
+            messageSender.bankTrade(game, bankGet, bankGive);  // undo by reversing previous request
+            bankGive = null;
+            bankGet = null;
+            bankUndoBut.setEnabled(false);
+        }
+    }
+
+    /**
+     * Handles logic for when the SEND action is called
+     * Extracted from {@link #actionPerformed(ActionEvent))} 
+     */
+    private void handleSendAction()
+    {
+        if (playerTradingDisabled)
+            return;
+
+        if (game.getGameState() == SOCGame.PLAY1)
+        {
+            int[] give = new int[5];
+            int[] get = new int[5];
+            int giveSum = 0;
+            int getSum = 0;
+            sqPanel.getValues(give, get);
+
+            for (int i = 0; i < 5; i++)
+            {
+                giveSum += give[i];
+                getSum += get[i];
+            }
+
+            SOCResourceSet giveSet = new SOCResourceSet(give);
+            SOCResourceSet getSet = new SOCResourceSet(get);
+
+            if (! player.getResources().contains(giveSet))
+            {
+                playerInterface.print("*** " + strings.get("hpan.trade.msg.donthave"));
+                    // "You can't offer what you don't have."
+            }
+            else if ((giveSum == 0) || (getSum == 0))
+            {
+                playerInterface.print("*** " + strings.get("hpan.trade.msg.eachplayer"));
+                    // "A trade must contain at least one resource from each player."
+            }
+            else
+            {
+                // bool array elements begin as false
+                boolean[] to = new boolean[game.maxPlayers];
+                boolean toAny = false;
+
+                if (game.getCurrentPlayerNumber() == playerNumber)
                 {
-                    giveSum += give[i];
-                    getSum += get[i];
-                }
-
-                SOCResourceSet giveSet = new SOCResourceSet(give);
-                SOCResourceSet getSet = new SOCResourceSet(get);
-
-                if (! player.getResources().contains(giveSet))
-                {
-                    playerInterface.print("*** " + strings.get("hpan.trade.msg.donthave"));
-                        // "You can't offer what you don't have."
-                }
-                else if ((giveSum == 0) || (getSum == 0))
-                {
-                    playerInterface.print("*** " + strings.get("hpan.trade.msg.eachplayer"));
-                        // "A trade must contain at least one resource from each player."
+                    for (int i = 0; i < (game.maxPlayers - 1); i++)
+                    {
+                        if (playerSend[i].getBoolValue() && ! game.isSeatVacant(playerSendMap[i]))
+                        {
+                            to[playerSendMap[i]] = true;
+                            toAny = true;
+                            playerSendForPrevTrade[i] = true;
+                        } else {
+                            playerSendForPrevTrade[i] = false;
+                        }
+                    }
                 }
                 else
                 {
-                    // bool array elements begin as false
-                    boolean[] to = new boolean[game.maxPlayers];
-                    boolean toAny = false;
-
-                    if (game.getCurrentPlayerNumber() == playerNumber)
-                    {
-                        for (int i = 0; i < (game.maxPlayers - 1); i++)
-                        {
-                            if (playerSend[i].getBoolValue() && ! game.isSeatVacant(playerSendMap[i]))
-                            {
-                                to[playerSendMap[i]] = true;
-                                toAny = true;
-                                playerSendForPrevTrade[i] = true;
-                            } else {
-                                playerSendForPrevTrade[i] = false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // can only offer to current player
-                        to[game.getCurrentPlayerNumber()] = true;
-                        toAny = true;
-                    }
-
-                    if (! toAny)
-                    {
-                        playerInterface.print("*** " + strings.get("hpan.trade.msg.chooseoppo"));
-                            // "Choose at least one opponent's checkbox."
-                    }
-                    else
-                    {
-                        SOCTradeOffer tradeOffer =
-                            new SOCTradeOffer(game.getName(),
-                                              playerNumber,
-                                              to, giveSet, getSet);
-                        messageSender.offerTrade(game, tradeOffer);
-                        disableBankUndoButton();
-                    }
+                    // can only offer to current player
+                    to[game.getCurrentPlayerNumber()] = true;
+                    toAny = true;
                 }
-            } else {
-                getPlayerInterface().print(strings.get("hpan.trade.msg.notnow"), true);
-                    // "You cannot trade at this time."
+
+                if (! toAny)
+                {
+                    playerInterface.print("*** " + strings.get("hpan.trade.msg.chooseoppo"));
+                        // "Choose at least one opponent's checkbox."
+                }
+                else
+                {
+                    SOCTradeOffer tradeOffer =
+                        new SOCTradeOffer(game.getName(),
+                                            playerNumber,
+                                            to, giveSet, getSet);
+                    messageSender.offerTrade(game, tradeOffer);
+                    disableBankUndoButton();
+                }
             }
+        } else {
+            getPlayerInterface().print(strings.get("hpan.trade.msg.notnow"), true);
+                // "You cannot trade at this time."
         }
-        else if ((e.getSource() == inventory) || (e.getSource() == playCardBut))
+    }
+
+    /**
+     * Passes ActionEvent to {@link HandPanelCommand}
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        try
         {
-            clickPlayCardButton();
-        }
+            HandPanelCommand command = sourceCommands.get(e.getSource());
+
+            if (command == null)
+                command = actionCommands.get(e.getActionCommand());
+
+            if (command != null)
+                command.execute(this, e);
 
         } catch (Throwable th) {
             playerInterface.chatPrintStackTrace(th);
