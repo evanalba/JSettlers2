@@ -28,7 +28,6 @@ import soc.disableDebug.D;
 import soc.game.GameAction.ActionType;
 import soc.game.GameAction.EffectType;
 import soc.message.SOCMessage;  // For static calls only; SOCGame does not interact with network messages
-import soc.server.SOCBoardAtServer;  // For calling server-only methods like distributeClothFromRoll
 import soc.util.DataUtils;
 import soc.util.IntPair;
 import soc.util.SOCFeatureSet;
@@ -4013,7 +4012,7 @@ public class SOCGame implements Serializable, Cloneable
      * and set the player's {@link SOCPlayerEvent#SVP_SETTLED_ANY_NEW_LANDAREA} flag.
      *<P>
      * Some scenarios use extra initial pieces in fixed locations, placed in
-     * {@link SOCBoardAtServer#startGame_putInitPieces(SOCGame)}.  To prevent the state or current player from
+     * {@link soc.server.SOCBoardAtServer#startGame_putInitPieces(SOCGame)}.  To prevent the state or current player from
      * advancing, temporarily set game state {@link #READY} before calling putPiece for these.
      *<P>
      * Adds {@link SOCShip}s to {@link #getShipsPlacedThisTurn()} except in gameState {@link #UNDOING_ACTION},
@@ -5860,7 +5859,8 @@ public class SOCGame implements Serializable, Cloneable
      *<UL>
      *<LI> Calls each player's {@link SOCPlayer#clearPotentialSettlements()}
      *
-     *<LI> At server, if {@link SOCBoardAtServer#getBonusExcludeLandArea()} != 0,
+     *<LI> At server, if the board implements {@link BoardServerExtension} and
+     *     {@link BoardServerExtension#getBonusExcludeLandArea()} != 0,
      *     use that to set each player's second starting land area as a client compatibility workaround
      *     for bonus calculations: Calls {@link SOCPlayer#setStartingLandAreasEncoded(int)}.
      *
@@ -5894,9 +5894,9 @@ public class SOCGame implements Serializable, Cloneable
         for (int pn = 0; pn < maxPlayers; ++pn)
             players[pn].clearPotentialSettlements();
 
-        if (board instanceof SOCBoardAtServer)
+        if (board instanceof BoardServerExtension)
         {
-            final int bxLAEnc = ((SOCBoardAtServer) board).getBonusExcludeLandArea() << 8;
+            final int bxLAEnc = ((BoardServerExtension) board).getBonusExcludeLandArea() << 8;
                 // Shift left for "encoded" form of players' 2nd starting land area.
                 // If bxLAEnc != 0, board must have 1 starting land area, so can assume players' 2nd starting LA is 0.
             if (bxLAEnc != 0)
@@ -6635,7 +6635,8 @@ public class SOCGame implements Serializable, Cloneable
      * and N7C: Roll no 7s until a city is built.
      *<P>
      * For scenario option {@link SOCGameOptionSet#K_SC_CLVI}, calls
-     * {@link SOCBoardAtServer#distributeClothFromRoll(SOCGame, RollResult, int)}.
+     * {@link BoardServerExtension#distributeClothFromRoll(SOCGame, RollResult, int)}
+     * (implemented by {@code soc.server.SOCBoardAtServer}).
      * Cloth are worth VP, so check for game state {@link #OVER} if results include {@link RollResult#cloth}.
      *<P>
      * For scenario option {@link SOCGameOptionSet#K_SC_PIRI}, calls {@link SOCBoardLarge#movePirateHexAlongPath(int)}
@@ -10526,7 +10527,7 @@ public class SOCGame implements Serializable, Cloneable
          *   [ Cloth amount taken from general supply,
          *     Cloth amount given to player 0, to player 1, ..., to player n ].
          * Any {@link SOCVillage}s with matching dice numbers which took part are in {@link #clothVillages}.
-         * @see SOCBoardAtServer#distributeClothFromRoll(SOCGame, RollResult, int)
+         * @see BoardServerExtension#distributeClothFromRoll(SOCGame, RollResult, int)
          */
         public int[] cloth;
 

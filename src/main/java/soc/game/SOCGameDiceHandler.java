@@ -19,8 +19,6 @@
  **/
 package soc.game;
 
-import soc.server.SOCBoardAtServer;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -188,7 +186,9 @@ class SOCGameDiceHandler
             if (game.hasSeaBoard && game.isGameOptionSet(SOCGameOptionSet.K_SC_CLVI))
             {
                 // distribute will usually return false; most rolls don't hit dice#s which distribute cloth
-                if (((SOCBoardAtServer) game.getBoard()).distributeClothFromRoll(game, currentRoll, diceTotal))
+                final SOCBoard b = game.getBoard();
+                if ((b instanceof BoardServerExtension)
+                    && ((BoardServerExtension) b).distributeClothFromRoll(game, currentRoll, diceTotal))
                     game.checkForWinner();
             }
 

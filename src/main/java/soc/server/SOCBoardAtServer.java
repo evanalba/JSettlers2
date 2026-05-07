@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+import soc.game.BoardServerExtension;
 import soc.game.SOCBoard;
 import soc.game.SOCBoard4p;
 import soc.game.SOCBoard6p;
@@ -149,6 +150,7 @@ import soc.util.IntTriple;
  * @since 2.0.00
  */
 public class SOCBoardAtServer extends SOCBoardLarge
+    implements BoardServerExtension
 {
     /**
      * Flag property {@code jsettlers.debug.board.fog}: When present, about 20% of the board's
