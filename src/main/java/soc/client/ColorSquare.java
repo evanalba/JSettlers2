@@ -33,26 +33,27 @@ import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
-
 /**
- * This is a square box with a background color and
- * possibly a number, checkmark, or text in it.  This box can be
- * interactive, or non-interactive.
- * If a "resource" background color from {@link #RESOURCE_COLORS} or {@link #GOLD} is used,
- * will automatically have a tooltip with that resource type (sheep, wood, etc).
- *<P>
+ * This is a square box with a background color and possibly a number,
+ * checkmark, or text in it. This box can be interactive, or non-interactive. If
+ * a "resource" background color from {@link #RESOURCE_COLORS} or {@link #GOLD}
+ * is used, will automatically have a tooltip with that resource type (sheep,
+ * wood, etc).
+ * <P>
  * Default size and minimum size are {@link #WIDTH} by {@link #HEIGHT} pixels,
- * unless you call a constructor with size parameters. Using
- * such a constructor will also increase font size of a larger ColorSquare;
- * calling {@code setSize} or {@code setMinimumSize} won't change the font size.
- *<P>
+ * unless you call a constructor with size parameters. Using such a constructor
+ * will also increase font size of a larger ColorSquare; calling {@code setSize}
+ * or {@code setMinimumSize} won't change the font size.
+ * <P>
  * You can call method {@link #setSize(int, int)} to change current size,
- * {@link #setMinimumSize(Dimension)} to change minimum. Minimum isn't set by setSize,
- * to avoid a "disappearing" 0-height or 0-width square when layout manager calls setSize or setBounds.
- *<P>
- * Most colorsquares in JSettlers are actually {@link ColorSquareLarger} instances:
- * Creating that subclass was easier than changing the values of {@link #WIDTH} and {@link #HEIGHT} here,
- * which are also used for setting the size of many UI elements.
+ * {@link #setMinimumSize(Dimension)} to change minimum. Minimum isn't set by
+ * setSize, to avoid a "disappearing" 0-height or 0-width square when layout
+ * manager calls setSize or setBounds.
+ * <P>
+ * Most colorsquares in JSettlers are actually {@link ColorSquareLarger}
+ * instances: Creating that subclass was easier than changing the values of
+ * {@link #WIDTH} and {@link #HEIGHT} here, which are also used for setting the
+ * size of many UI elements.
  *
  * @author Robert S Thomas
  */
@@ -60,9 +61,8 @@ import javax.swing.JComponent;
 public class ColorSquare extends JComponent implements MouseListener
 {
     /**
-     * The color constants are used by ColorSquare,
-     * and also used for the robber's "ghost" when
-     * moving the robber, and fallback for missing hex graphics.
+     * The color constants are used by ColorSquare, and also used for the robber's
+     * "ghost" when moving the robber, and fallback for missing hex graphics.
      *
      * @see soc.client.SOCBoardPanel#drawRobber(Graphics, int, boolean, boolean)
      * @see soc.client.SOCBoardPanel#drawHex(Graphics, int)
@@ -72,35 +72,40 @@ public class ColorSquare extends JComponent implements MouseListener
     public final static Color SHEEP = new Color(51, 204, 51);
     public final static Color WHEAT = new Color(204, 204, 51);
     public final static Color WOOD = new Color(204, 153, 102);
-    public final static Color GREY = new Color(204, 204, 204);  // Must not equal ORE, for ore's auto-tooltip to show
+    public final static Color GREY = new Color(204, 204, 204); // Must not equal ORE, for ore's auto-tooltip to show
 
     /**
      * {@link soc.game.SOCBoard#DESERT_HEX} color.
+     * 
      * @since 1.1.00
      */
     public final static Color DESERT = new Color(255, 255, 153);
 
     /**
      * {@link soc.game.SOCBoardLarge#GOLD_HEX Gold hex} color.
+     * 
      * @since 2.0.00
      */
     public final static Color GOLD = new Color(255, 250, 0);
 
     /**
      * {@link soc.game.SOCBoardLarge#FOG_HEX Fog hex} color.
+     * 
      * @since 2.0.00
      */
-    public final static Color FOG = new Color(220, 220, 220);  // Should not equal GREY, for comparisons
+    public final static Color FOG = new Color(220, 220, 220); // Should not equal GREY, for comparisons
 
     /** Water hex color, for fallback if graphic is missing. @since 1.1.07 */
-    public static final Color WATER = new Color(72, 97, 162);  // grey-blue; waterHex.gif average is actually (76, 102, 152)
+    public static final Color WATER = new Color(72, 97, 162); // grey-blue; waterHex.gif average is actually (76, 102,
+                                                              // 152)
 
     /**
-     * Array of resource colors.
-     * 0 is {@link #CLAY}, 1 is {@link #ORE}, {@link #SHEEP}, {@link #WHEAT}, 4 is {@link #WOOD}.
-     *<P>
-     * Because this array has the resource types a player can hold or trade,
-     * it does not contain {@link #GOLD}.
+     * Array of resource colors. 0 is {@link #CLAY}, 1 is {@link #ORE},
+     * {@link #SHEEP}, {@link #WHEAT}, 4 is {@link #WOOD}.
+     * <P>
+     * Because this array has the resource types a player can hold or trade, it does
+     * not contain {@link #GOLD}.
+     * 
      * @since 1.1.08
      */
     public static final Color[] RESOURCE_COLORS =
@@ -113,8 +118,9 @@ public class ColorSquare extends JComponent implements MouseListener
     public final static int BOUNDED_DEC = 4;
 
     /**
-     * Colorsquare type TEXT displays a short message.
-     * You will have to change the colorsquare's size yourself.
+     * Colorsquare type TEXT displays a short message. You will have to change the
+     * colorsquare's size yourself.
+     * 
      * @since 1.1.06
      */
     public static final int TEXT = 5;
@@ -137,6 +143,7 @@ public class ColorSquare extends JComponent implements MouseListener
 
     /**
      * Background color for warning-level, if grey normally
+     * 
      * @see #WARN_LEVEL_COLOR
      * @since 1.1.00
      */
@@ -144,7 +151,7 @@ public class ColorSquare extends JComponent implements MouseListener
 
     int intValue;
     boolean boolValue;
-    private String textValue;  // since 1.1.06
+    private String textValue; // since 1.1.06
     boolean valueVis;
     int kind;
     int upperBound;
@@ -153,12 +160,14 @@ public class ColorSquare extends JComponent implements MouseListener
 
     /**
      * Border color, BLACK by default
+     * 
      * @since 1.1.13
      */
     private Color borderColor = Color.BLACK;
 
     /**
      * Square change listener if any, or null.
+     * 
      * @since 1.1.00
      */
     protected ColorSquareListener sqListener;
@@ -166,6 +175,7 @@ public class ColorSquare extends JComponent implements MouseListener
     /**
      * Normal background color is GREY (when not high or low "warning" color).
      * Background does not change for warning, unless this is true.
+     * 
      * @see #WARN_LEVEL_COLOR_BG_FROMGREY
      * @since 1.1.00
      */
@@ -173,52 +183,61 @@ public class ColorSquare extends JComponent implements MouseListener
 
     /**
      * Text to use when numeric value is in normal range (not low-warning-level).
-     * Field contents are unused unless a low-bound or high-bound or zero-level-text is set.
+     * Field contents are unused unless a low-bound or high-bound or zero-level-text
+     * is set.
+     * 
      * @since 1.1.00
      */
     protected String ttip_text;
 
     /**
      * Optional text for low-warning-level and high-warning-level (intValue).
+     * 
      * @since 1.1.00
      */
     protected String ttip_text_warnLow, ttip_text_warnHigh;
 
     /**
      * Optional text for zero level (intValue).
+     * 
      * @since 1.1.00
      */
     protected String ttip_text_zero;
 
     /**
      * Low-level or high-level warning level has been set (intValue).
+     * 
      * @since 1.1.00
      */
     protected boolean hasWarnLow, hasWarnHigh;
 
     /**
      * True if at low-level warning, or at zero if ttip_text_zero was set.
+     * 
      * @since 1.1.00
      */
     protected boolean isWarnLow;
 
     /**
      * True if at high-level warning.
+     * 
      * @since 1.1.00
      */
     protected boolean isWarnHigh;
 
-    protected int warnLowBound;  // TODO rename any warn-thing from "bound" incl comments
-    protected int warnHighBound;  // TODO rename any warn-thing from "bound" incl comments
+    protected int warnLowBound; // TODO rename any warn-thing from "bound" incl comments
+    protected int warnHighBound; // TODO rename any warn-thing from "bound" incl comments
 
     /**
      * Width/height, for ColorSquareLarger
+     * 
      * @since 1.1.00
      */
     protected int squareW, squareH;
 
     /**
      * Size from most recent call to {@link #setSize(int, int)}.
+     * 
      * @see #minSize
      * @see #sizeIsMax
      * @since 1.1.00
@@ -227,27 +246,32 @@ public class ColorSquare extends JComponent implements MouseListener
 
     /**
      * Size from most recent call to {@link #setMinimumSize(Dimension)}.
+     * 
      * @see #squareSize
      * @since 2.0.00
      */
     protected Dimension minSize;
 
     /**
-     * If true, {@link #squareSize} is also the maximum size and square should be no larger:
-     * {@link #setMaximumSizeToCurrent()}.
+     * If true, {@link #squareSize} is also the maximum size and square should be no
+     * larger: {@link #setMaximumSizeToCurrent()}.
+     * 
      * @since 2.7.00
      */
     protected boolean sizeIsMax;
+    
+    private PressBehavior pressBehavior;
 
     /**
      * i18n text strings, for tooltip text.
+     * 
      * @since 2.0.00
      */
     private static final soc.util.SOCStringManager strings = soc.util.SOCStringManager.getClientManager();
 
     /**
-     * Creates a new grey ColorSquare object without a visible value.
-     * Uses type {@link #NUMBER}, non-interactive, with lower and upper limits both 0.
+     * Creates a new grey ColorSquare object without a visible value. Uses type
+     * {@link #NUMBER}, non-interactive, with lower and upper limits both 0.
      *
      * @see #ColorSquare(int, boolean, Color, int, int)
      * @see #ColorSquare(Color)
@@ -259,14 +283,15 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Creates a new ColorSquare object with specified background color and without a visible value.
-     * Non-interactive. Uses type {@link #CHECKBOX}.
-     *<P>
+     * Creates a new ColorSquare object with specified background color and without
+     * a visible value. Non-interactive. Uses type {@link #CHECKBOX}.
+     * <P>
      * A tooltip with the resource name is created if {@code c} is one of the
      * resource colors defined in ColorSquare ({@link #CLAY}, {@link #WHEAT},
      * {@link #GOLD}, etc, or an element of {@link #RESOURCE_COLORS}).
      *
-     * @param c background color; creates resource-name tooltip if is a resource color
+     * @param c background color; creates resource-name tooltip if is a resource
+     *          color
      * @see #ColorSquare(Color, int, int)
      * @see #ColorSquare(int, boolean, Color, int, int)
      */
@@ -276,11 +301,12 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Creates a new ColorSquare with specified background color and size, without a visible value;
-     * calls {@link #ColorSquare(Color)}.
+     * Creates a new ColorSquare with specified background color and size, without a
+     * visible value; calls {@link #ColorSquare(Color)}.
      *
-     * @param c background color; creates resource-name tooltip if is a defined resource color
-     *     ({@link #CLAY}, {@link #WHEAT}, {@link #GOLD}, etc, or an element of {@link #RESOURCE_COLORS})
+     * @param c background color; creates resource-name tooltip if is a defined
+     *          resource color ({@link #CLAY}, {@link #WHEAT}, {@link #GOLD}, etc,
+     *          or an element of {@link #RESOURCE_COLORS})
      * @param w width in pixels
      * @param h height in pixels
      * @since 2.0.00
@@ -293,15 +319,15 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Creates a new ColorSquare object with specified background color and
-     * initial value. Type {@link #NUMBER}, non-interactive, upper=99,
-     * lower=0.
-     *<P>
+     * Creates a new ColorSquare object with specified background color and initial
+     * value. Type {@link #NUMBER}, non-interactive, upper=99, lower=0.
+     * <P>
      * A tooltip with the resource name is created if {@code c} is one of the
      * resource colors defined in ColorSquare ({@link #CLAY}, {@link #WHEAT},
      * {@link #GOLD}, etc, or an element of {@link #RESOURCE_COLORS}).
      *
-     * @param c background color; creates resource-name tooltip if is a resource color
+     * @param c background color; creates resource-name tooltip if is a resource
+     *          color
      * @param v initial int value
      * @see #ColorSquare(Color, int, int, int)
      * @see #ColorSquare(int, boolean, Color, int, int)
@@ -313,11 +339,12 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Creates a new ColorSquare with specified background color, initial value, and size;
-     * calls {@link #ColorSquare(Color, int)}.
+     * Creates a new ColorSquare with specified background color, initial value, and
+     * size; calls {@link #ColorSquare(Color, int)}.
      *
-     * @param c background color; creates resource-name tooltip if is a defined resource color
-     *     ({@link #CLAY}, {@link #WHEAT}, {@link #GOLD}, etc, or an element of {@link #RESOURCE_COLORS})
+     * @param c background color; creates resource-name tooltip if is a defined
+     *          resource color ({@link #CLAY}, {@link #WHEAT}, {@link #GOLD}, etc,
+     *          or an element of {@link #RESOURCE_COLORS})
      * @param v initial int value
      * @param w width in pixels
      * @param h height in pixels
@@ -331,19 +358,20 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Creates a new ColorSquare object with specified background color and
-     * initial value. Type {@link #TEXT}, non-interactive.
-     *<P>
-     * The colorsquare's size is small by default and not changed here, so
-     * be sure to call {@link #setSize(int, int) setSize} or
-     * {@link #setBounds(int, int, int, int) setBounds} to make the square
-     * large enough to display your text.
-     *<P>
+     * Creates a new ColorSquare object with specified background color and initial
+     * value. Type {@link #TEXT}, non-interactive.
+     * <P>
+     * The colorsquare's size is small by default and not changed here, so be sure
+     * to call {@link #setSize(int, int) setSize} or
+     * {@link #setBounds(int, int, int, int) setBounds} to make the square large
+     * enough to display your text.
+     * <P>
      * A tooltip with the resource name is created if {@code c} is one of the
      * resource colors defined in ColorSquare ({@link #CLAY}, {@link #WHEAT},
      * {@link #GOLD}, etc, or an element of {@link #RESOURCE_COLORS}).
      *
-     * @param c background color; creates resource-name tooltip if is a resource color
+     * @param c background color; creates resource-name tooltip if is a resource
+     *          color
      * @param v initial string value
      *
      * @since 1.1.06
@@ -355,17 +383,18 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Creates a new ColorSquare of the specified kind and background
-     * color. Possibly interactive.
-     * For kind {@link #BOUNDED_INC} and {@link #BOUNDED_DEC}, sets {@code upper=99 lower=0}.
-     *<P>
+     * Creates a new ColorSquare of the specified kind and background color.
+     * Possibly interactive. For kind {@link #BOUNDED_INC} and {@link #BOUNDED_DEC},
+     * sets {@code upper=99 lower=0}.
+     * <P>
      * A tooltip with the resource name is created if {@code c} is one of the
      * resource colors defined in ColorSquare ({@link #CLAY}, {@link #WHEAT},
      * {@link #GOLD}, etc, or an element of {@link #RESOURCE_COLORS}).
      *
-     * @param k Kind: {@link #NUMBER}, YES_NO, CHECKBOX, BOUNDED_INC, BOUNDED_DEC
+     * @param k  Kind: {@link #NUMBER}, YES_NO, CHECKBOX, BOUNDED_INC, BOUNDED_DEC
      * @param in interactive flag allowing user interaction
-     * @param c background color; creates resource-name tooltip if is a resource color
+     * @param c  background color; creates resource-name tooltip if is a resource
+     *           color
      * @see #ColorSquare(int, boolean, int, int, Color)
      * @see #ColorSquare(int, boolean, Color, int, int)
      */
@@ -376,18 +405,19 @@ public class ColorSquare extends JComponent implements MouseListener
 
     /**
      * Creates a new ColorSquare with specified kind, background color, and size;
-     * calls {@link #ColorSquare(int, boolean, Color)}.
-     * For kind {@link #BOUNDED_INC} and {@link #BOUNDED_DEC}, sets {@code upper=99 lower=0}.
-     *<P>
+     * calls {@link #ColorSquare(int, boolean, Color)}. For kind
+     * {@link #BOUNDED_INC} and {@link #BOUNDED_DEC}, sets {@code upper=99 lower=0}.
+     * <P>
      * A tooltip with the resource name is created if {@code c} is one of the
      * resource colors defined in ColorSquare ({@link #CLAY}, {@link #WHEAT},
      * {@link #GOLD}, etc, or an element of {@link #RESOURCE_COLORS}).
      *
-     * @param k Kind: {@link #NUMBER}, YES_NO, CHECKBOX, BOUNDED_INC, BOUNDED_DEC
+     * @param k  Kind: {@link #NUMBER}, YES_NO, CHECKBOX, BOUNDED_INC, BOUNDED_DEC
      * @param in interactive flag allowing user interaction
-     * @param w width in pixels
-     * @param h height in pixels
-     * @param c background color; creates resource-name tooltip if is a resource color
+     * @param w  width in pixels
+     * @param h  height in pixels
+     * @param c  background color; creates resource-name tooltip if is a resource
+     *           color
      * @since 2.0.00
      */
     public ColorSquare(int k, boolean in, int w, int h, Color c)
@@ -397,17 +427,18 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Creates a new ColorSquare of the specified kind and background
-     * color. Possibly interactive, with upper and lower bounds specified for
+     * Creates a new ColorSquare of the specified kind and background color.
+     * Possibly interactive, with upper and lower bounds specified for
      * {@link #BOUNDED_INC} and {@link #BOUNDED_DEC} kinds.
-     *<P>
+     * <P>
      * A tooltip with the resource name is created if {@code c} is one of the
      * resource colors defined in ColorSquare ({@link #CLAY}, {@link #WHEAT},
      * {@link #GOLD}, etc, or an element of {@link #RESOURCE_COLORS}).
      *
-     * @param k Kind: NUMBER, YES_NO, CHECKBOX, BOUNDED_INC, BOUNDED_DEC
-     * @param in interactive flag allowing user interaction
-     * @param c background color; creates resource-name tooltip if is a resource color
+     * @param k     Kind: NUMBER, YES_NO, CHECKBOX, BOUNDED_INC, BOUNDED_DEC
+     * @param in    interactive flag allowing user interaction
+     * @param c     background color; creates resource-name tooltip if is a resource
+     *              color
      * @param upper upper bound if k is {@link #BOUNDED_INC} or {@link #BOUNDED_DEC}
      * @param lower lower bound if k is {@link #BOUNDED_INC} or {@link #BOUNDED_DEC}
      */
@@ -426,6 +457,7 @@ public class ColorSquare extends JComponent implements MouseListener
 
         kind = k;
         interactive = in;
+        pressBehavior = getPressBehavior(k);
         sqListener = null;
 
         ttip_text = null;
@@ -501,15 +533,15 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set this square to interactive or read-only mode.
-     * If read-only, user can't click the resource amount to change it.
-     *<P>
-     * If square was non-interactive when constructor called, and then this method is
-     * called to make interactive, adds a mouse listener. Calling it again later
-     * could add a duplicate mouse listener, so don't toggle interactivity
-     * more than once.
+     * Set this square to interactive or read-only mode. If read-only, user can't
+     * click the resource amount to change it.
+     * <P>
+     * If square was non-interactive when constructor called, and then this method
+     * is called to make interactive, adds a mouse listener. Calling it again later
+     * could add a duplicate mouse listener, so don't toggle interactivity more than
+     * once.
      *
-     * @param inter  True for interactive, false for read-only
+     * @param inter True for interactive, false for read-only
      * @see 2.0.00
      */
     public void setInteractive(final boolean inter)
@@ -517,18 +549,19 @@ public class ColorSquare extends JComponent implements MouseListener
         if (inter == interactive)
             return;
 
-        if (inter && ! interactive)
-            addMouseListener(this);  // assumes won't be set true twice
+        if (inter && !interactive)
+            addMouseListener(this); // assumes won't be set true twice
 
         interactive = inter;
     }
 
     /**
-     * Set minimum and current size of this ColorSquare.
-     * If {@code w} or {@code h} >= 4/3 of {@link ColorSquare#HEIGHT},
-     * also update the font size to fill the square.
-     * @param w  New width
-     * @param h  New height
+     * Set minimum and current size of this ColorSquare. If {@code w} or {@code h}
+     * >= 4/3 of {@link ColorSquare#HEIGHT}, also update the font size to fill the
+     * square.
+     * 
+     * @param w New width
+     * @param h New height
      * @since 2.0.00
      * @see #setMaximumSizeToCurrent()
      */
@@ -544,9 +577,10 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set the minimum size to be reported by {@link #getMinimumSize()}.
-     * Overrides the width and height set by {@link #setSize(int, int)},
+     * Set the minimum size to be reported by {@link #getMinimumSize()}. Overrides
+     * the width and height set by {@link #setSize(int, int)},
      * {@link #setSize(Dimension)}, or {@link #setBounds(int, int, int, int)}.
+     * 
      * @since 2.0.00
      * @see #setMaximumSizeToCurrent()
      */
@@ -555,12 +589,13 @@ public class ColorSquare extends JComponent implements MouseListener
     {
         super.setMinimumSize(d);
         minSize = (d != null) ? new Dimension(d) : null;
-            // copy w, h values instead of copying a reference that might be squareSize
+        // copy w, h values instead of copying a reference that might be squareSize
     }
 
     /**
-     * Make current size be the maximum size, square should become no larger;
-     * useful for layouts which might stretch their components.
+     * Make current size be the maximum size, square should become no larger; useful
+     * for layouts which might stretch their components.
+     * 
      * @since 2.7.00
      * @see #setSizesAndFont(int, int)
      */
@@ -571,11 +606,10 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Overrides standard to allow special warning behavior for {@link #GREY}.
-     * Only grey squares change background color when a warning-level
-     * threshold is reached ({@link #setHighWarningLevel(int)}
-     * or {@link #setLowWarningLevel(int)}).
-     * TODO DOCU - what do other squares do?
+     * Overrides standard to allow special warning behavior for {@link #GREY}. Only
+     * grey squares change background color when a warning-level threshold is
+     * reached ({@link #setHighWarningLevel(int)} or
+     * {@link #setLowWarningLevel(int)}). TODO DOCU - what do other squares do?
      *
      * @param c New background color
      * @since 1.1.00
@@ -587,8 +621,8 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set this square's background color.  The text color cannot be changed.
-     * See {@link #setBackground(Color)} for special behavior with warning-level.
+     * Set this square's background color. The text color cannot be changed. See
+     * {@link #setBackground(Color)} for special behavior with warning-level.
      * thresholds.
      *
      * @param c New background color
@@ -600,12 +634,13 @@ public class ColorSquare extends JComponent implements MouseListener
 
     /**
      * Set this square's border color.
-     * @param c  New color; the default is {@link Color#BLACK}
+     * 
+     * @param c New color; the default is {@link Color#BLACK}
      * @since 1.1.13
      * @throws IllegalArgumentException if c is null
      */
     public void setBorderColor(Color c)
-        throws IllegalArgumentException
+            throws IllegalArgumentException
     {
         if (c == null)
             throw new IllegalArgumentException();
@@ -617,11 +652,11 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set the width and height of this ColorSquare.
-     * Does not need to be a square (w != h is OK).
-     * This size will also be returned by {@link #getPreferredSize()}.
-     * If {@link #setMinimumSize(Dimension)} has been called,
-     * will honor that minimum width and height here.
+     * Set the width and height of this ColorSquare. Does not need to be a square (w
+     * != h is OK). This size will also be returned by {@link #getPreferredSize()}.
+     * If {@link #setMinimumSize(Dimension)} has been called, will honor that
+     * minimum width and height here.
+     * 
      * @param w width in pixels
      * @param h height in pixels
      * @see #setMinimumSize(Dimension)
@@ -649,7 +684,9 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set the size of this ColorSquare; overridden to call {@link #setSize(int, int)}.
+     * Set the size of this ColorSquare; overridden to call
+     * {@link #setSize(int, int)}.
+     * 
      * @since 2.0.00
      */
     @Override
@@ -660,13 +697,13 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Change tooltip text or show or (if null) hide tooltip.
-     * Any previously set warning-level or zero-level tooltip text is cleared to null.
-     *<P>
+     * Change tooltip text or show or (if null) hide tooltip. Any previously set
+     * warning-level or zero-level tooltip text is cleared to null.
+     * <P>
      * Before v2.0.00 this method was {@code setTooltipText} with lowercase "tip".
      *
-     * @param tip New tip text; will create tooltip if needed.
-     *     If tip is null, tooltip is removed.
+     * @param tip New tip text; will create tooltip if needed. If tip is null,
+     *            tooltip is removed.
      *
      * @see #setToolTipHighWarningLevel(String, int)
      * @see #setToolTipLowWarningLevel(String, int)
@@ -686,19 +723,21 @@ public class ColorSquare extends JComponent implements MouseListener
     /**
      * Set low-level warning (TODO docu text)
      *
-     * @param warnLevel If the colorsquare value is at warnLevel or lower,
-     *     indicate with the warning color.
+     * @param warnLevel If the colorsquare value is at warnLevel or lower, indicate
+     *                  with the warning color.
      *
      * @see #clearLowWarningLevel()
      * @see #setToolTipZeroText(String)
      *
-     * @throws IllegalArgumentException if warnLevel is above high level, or is zero.
-     *     To set text for value 0, use {@link #setToolTipZeroText(String)} instead.
-     *     To clear the warning level, use {@link #clearLowWarningLevel()} instead.
+     * @throws IllegalArgumentException if warnLevel is above high level, or is
+     *                                  zero. To set text for value 0, use
+     *                                  {@link #setToolTipZeroText(String)} instead.
+     *                                  To clear the warning level, use
+     *                                  {@link #clearLowWarningLevel()} instead.
      * @since 1.1.00
      */
     public void setLowWarningLevel(int warnLevel)
-        throws IllegalArgumentException
+            throws IllegalArgumentException
     {
         if (warnLevel == 0)
         {
@@ -709,7 +748,7 @@ public class ColorSquare extends JComponent implements MouseListener
         }
         if (hasWarnHigh && (warnLevel >= warnHighBound))
             throw new IllegalArgumentException("Asked for low warning (" + warnLevel
-                + ") higher than existing high warning (" + warnHighBound + ")");
+                    + ") higher than existing high warning (" + warnHighBound + ")");
 
         boolean wasWarnLow = isWarnLow;
         hasWarnLow = true;
@@ -727,8 +766,8 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * If a tooltip low-warning has been set, it is also cleared
-     * TODO docu
+     * If a tooltip low-warning has been set, it is also cleared TODO docu
+     * 
      * @since 1.1.00
      */
     public void clearLowWarningLevel()
@@ -750,11 +789,12 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set low-level warning, and set or clear its tooltip text.
-     * If warnTip not null, we must already have a standard tooltip text.
-     * Does not affect zero-level or high-level tooltip text.
-     *<P>
-     * Before v2.0.00 this method was {@code setTooltipLowWarningLevel} with lowercase "tip".
+     * Set low-level warning, and set or clear its tooltip text. If warnTip not
+     * null, we must already have a standard tooltip text. Does not affect
+     * zero-level or high-level tooltip text.
+     * <P>
+     * Before v2.0.00 this method was {@code setTooltipLowWarningLevel} with
+     * lowercase "tip".
      *
      * @param warnTip   TODO docu - or null to clear tip text
      * @param warnLevel TODO docu - at or below
@@ -764,16 +804,18 @@ public class ColorSquare extends JComponent implements MouseListener
      * @see #setToolTipText(String)
      * @see #setToolTipZeroText(String)
      *
-     * @throws IllegalStateException if setToolTipText has not yet been called
-     *     and warnTip is not null
+     * @throws IllegalStateException    if setToolTipText has not yet been called
+     *                                  and warnTip is not null
      *
-     * @throws IllegalArgumentException if warnLevel is above high level, or is zero.
-     *     To set text for value 0, use {@link #setToolTipZeroText(String)} instead.
-     *     To clear the warning level, use {@link #clearLowWarningLevel()} instead.
+     * @throws IllegalArgumentException if warnLevel is above high level, or is
+     *                                  zero. To set text for value 0, use
+     *                                  {@link #setToolTipZeroText(String)} instead.
+     *                                  To clear the warning level, use
+     *                                  {@link #clearLowWarningLevel()} instead.
      * @since 1.1.00
      */
     public void setToolTipLowWarningLevel(String warnTip, int warnLevel)
-        throws IllegalStateException, IllegalArgumentException
+            throws IllegalStateException, IllegalArgumentException
     {
         if ((ttip_text == null) && (warnTip != null))
             throw new IllegalStateException("Must call setToolTipText first");
@@ -786,21 +828,21 @@ public class ColorSquare extends JComponent implements MouseListener
         }
         if (hasWarnHigh && (warnLevel >= warnHighBound))
             throw new IllegalArgumentException("Asked for low warning (" + warnLevel
-                + ") higher than existing high warning (" + warnHighBound + ")");
+                    + ") higher than existing high warning (" + warnHighBound + ")");
 
         boolean wasWarnLow = isWarnLow;
         boolean willWarnLow = (intValue <= warnLevel);
 
-        ttip_text_warnLow = warnTip;  // Remember new warnTip text
+        ttip_text_warnLow = warnTip; // Remember new warnTip text
 
         // TODO simplify, docu
         if ((warnTip == null) && (ttip_text != null))
         {
             // No more warnTip text.
             if ((intValue == 0) && (ttip_text_zero != null))
-                super.setToolTipText(ttip_text_zero);  // Revert to zero-level tooltip text
+                super.setToolTipText(ttip_text_zero); // Revert to zero-level tooltip text
             else if (wasWarnLow)
-                super.setToolTipText(ttip_text);  // Revert to non-warning tooltip text
+                super.setToolTipText(ttip_text); // Revert to non-warning tooltip text
         }
         else if ((warnTip != null) && wasWarnLow && willWarnLow)
         {
@@ -811,14 +853,14 @@ public class ColorSquare extends JComponent implements MouseListener
                 super.setToolTipText(warnTip);
         }
 
-        setLowWarningLevel(warnLevel);  // Remember new warning level
+        setLowWarningLevel(warnLevel); // Remember new warning level
     }
 
     /**
      * Set high-level warning (TODO docu text)
      *
-     * @param warnLevel If the colorsquare value is at warnLevel or higher,
-     *     indicate with the warning color.
+     * @param warnLevel If the colorsquare value is at warnLevel or higher, indicate
+     *                  with the warning color.
      *
      * @see #clearHighWarningLevel()
      *
@@ -826,11 +868,11 @@ public class ColorSquare extends JComponent implements MouseListener
      * @since 1.1.00
      */
     public void setHighWarningLevel(int warnLevel)
-        throws IllegalArgumentException
+            throws IllegalArgumentException
     {
         if (hasWarnLow && (warnLevel <= warnLowBound))
             throw new IllegalArgumentException("Asked for high warning (" + warnLevel
-                + ") lower than existing low warning (" + warnLowBound + ")");
+                    + ") lower than existing low warning (" + warnLowBound + ")");
 
         boolean wasWarnHigh = isWarnHigh;
         hasWarnHigh = true;
@@ -851,8 +893,8 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * If a tooltip high-warning has been set, it is also cleared
-     * TODO docu
+     * If a tooltip high-warning has been set, it is also cleared TODO docu
+     * 
      * @since 1.1.00
      */
     public void clearHighWarningLevel()
@@ -872,11 +914,12 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set high-level warning, and set or clear its tooltip text.
-     * If warnTip not null, we must already have a standard tooltip text.
-     * Does not affect zero-level or low-level tooltip text.
-     *<P>
-     * Before v2.0.00 this method was {@code setTooltipHighWarningLevel} with lowercase "tip".
+     * Set high-level warning, and set or clear its tooltip text. If warnTip not
+     * null, we must already have a standard tooltip text. Does not affect
+     * zero-level or low-level tooltip text.
+     * <P>
+     * Before v2.0.00 this method was {@code setTooltipHighWarningLevel} with
+     * lowercase "tip".
      *
      * @param warnTip   TODO docu - or null to clear tip text
      * @param warnLevel TODO docu - at or above
@@ -885,32 +928,32 @@ public class ColorSquare extends JComponent implements MouseListener
      * @see #setLowWarningLevel(int)
      * @see #setToolTipText(String)
      *
-     * @throws IllegalStateException if setToolTipText has not yet been called
-     *     and warnTip is not null
+     * @throws IllegalStateException    if setToolTipText has not yet been called
+     *                                  and warnTip is not null
      *
      * @throws IllegalArgumentException if warnLevel is below low-warning level.
      * @since 1.1.00
      */
     public void setToolTipHighWarningLevel(String warnTip, int warnLevel)
-        throws IllegalStateException, IllegalArgumentException
+            throws IllegalStateException, IllegalArgumentException
     {
         if ((ttip_text == null) && (warnTip != null))
             throw new IllegalStateException("Must call setToolTipText first");
         if (hasWarnLow && (warnLevel <= warnLowBound))
             throw new IllegalArgumentException("Asked for high warning (" + warnLevel
-                + ") lower than existing low warning (" + warnLowBound + ")");
+                    + ") lower than existing low warning (" + warnLowBound + ")");
 
         boolean wasWarnHigh = isWarnHigh;
         boolean willWarnHigh = (intValue >= warnLevel);
 
-        ttip_text_warnHigh = warnTip;  // Remember new warnTip text
+        ttip_text_warnHigh = warnTip; // Remember new warnTip text
 
         // TODO simplify, docu
         if ((warnTip == null) && (ttip_text != null))
         {
             // No more warnTip text.
             if (wasWarnHigh)
-                super.setToolTipText(ttip_text);  // Revert to non-warning tooltip text
+                super.setToolTipText(ttip_text); // Revert to non-warning tooltip text
         }
         else if ((warnTip != null) && wasWarnHigh && willWarnHigh)
         {
@@ -919,36 +962,36 @@ public class ColorSquare extends JComponent implements MouseListener
             super.setToolTipText(warnTip);
         }
 
-        setHighWarningLevel(warnLevel);  // Remember new warning level
+        setHighWarningLevel(warnLevel); // Remember new warning level
     }
 
     /**
-     * Set or clear zero-level tooltip text.
-     * Setting this text will also change the tooltip background color the warning color
-     * when at value 0.
-     *<P>
-     * Before v2.0.00 this method was {@code setTooltipZeroText} with lowercase "tip".
+     * Set or clear zero-level tooltip text. Setting this text will also change the
+     * tooltip background color the warning color when at value 0.
+     * <P>
+     * Before v2.0.00 this method was {@code setTooltipZeroText} with lowercase
+     * "tip".
      *
-     * @param zeroTip  Text to display only when value is 0,
-     *     or {@code null} to not have a separate zero-level-only tip text
+     * @param zeroTip Text to display only when value is 0, or {@code null} to not
+     *                have a separate zero-level-only tip text
      *
      * @see #setToolTipText(String)
      * @see #setToolTipHighWarningLevel(String, int)
      * @see #setToolTipLowWarningLevel(String, int)
      *
-     * @throws IllegalStateException if setToolTipText has not yet been called
-     *     and zeroTip is not null
+     * @throws IllegalStateException if setToolTipText has not yet been called and
+     *                               zeroTip is not null
      * @since 1.1.00
      */
     public void setToolTipZeroText(String zeroTip)
-        throws IllegalStateException
+            throws IllegalStateException
     {
         if ((ttip_text == null) && (zeroTip != null))
             throw new IllegalStateException("Must call setToolTipText first");
 
         boolean isZero = (intValue == 0);
 
-        ttip_text_zero = zeroTip;  // Remember new zeroTip text
+        ttip_text_zero = zeroTip; // Remember new zeroTip text
 
         // TODO simplify, docu
         if ((zeroTip == null) && (ttip_text != null))
@@ -957,9 +1000,9 @@ public class ColorSquare extends JComponent implements MouseListener
             if (isZero)
             {
                 if (hasWarnLow && isWarnLow)
-                    super.setToolTipText(ttip_text_warnLow);  // Revert to low-level tooltip text
+                    super.setToolTipText(ttip_text_warnLow); // Revert to low-level tooltip text
                 else
-                    super.setToolTipText(ttip_text);  // Revert to non-warning tooltip text
+                    super.setToolTipText(ttip_text); // Revert to non-warning tooltip text
             }
         }
         else if ((zeroTip != null) && isZero)
@@ -970,8 +1013,8 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Get our preferred size:
-     * Default from constructor, or any value passed to {@link #setSize(int, int)}.
+     * Get our preferred size: Default from constructor, or any value passed to
+     * {@link #setSize(int, int)}.
      */
     @Override
     public Dimension getPreferredSize()
@@ -980,8 +1023,8 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Get our minimum size:
-     * Default from constructor, or any value passed to {@link #setMinimumSize(Dimension)}.
+     * Get our minimum size: Default from constructor, or any value passed to
+     * {@link #setMinimumSize(Dimension)}.
      */
     @Override
     public Dimension getMinimumSize()
@@ -990,10 +1033,10 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set bounds (position and size).
-     * Does not need to be a square (w != h is OK).
-     * If {@link #setMinimumSize(Dimension)} has been called,
-     * will honor that minimum width and height here.
+     * Set bounds (position and size). Does not need to be a square (w != h is OK).
+     * If {@link #setMinimumSize(Dimension)} has been called, will honor that
+     * minimum width and height here.
+     * 
      * @param x x-position
      * @param y y-position
      * @param w width in pixels
@@ -1024,7 +1067,9 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Set bounds (position and size). Overrides to call {@link #setBounds(int, int, int, int)}.
+     * Set bounds (position and size). Overrides to call
+     * {@link #setBounds(int, int, int, int)}.
+     * 
      * @since 2.0.00
      */
     @Override
@@ -1036,96 +1081,96 @@ public class ColorSquare extends JComponent implements MouseListener
 
     /**
      * Paint our contents.
-     *<P>
+     * <P>
      * Before v2.0.00 and its Swing conversion, this method was {@code paint}.
      */
     public void paintComponent(Graphics g)
     {
-            super.paintComponent(g);
+        super.paintComponent(g);
 
-            g.setPaintMode();
-            if (warn_bg_grey && (isWarnLow || isWarnHigh))
-                g.setColor(WARN_LEVEL_COLOR_BG_FROMGREY);
+        g.setPaintMode();
+        if (warn_bg_grey && (isWarnLow || isWarnHigh))
+            g.setColor(WARN_LEVEL_COLOR_BG_FROMGREY);
+        else
+            g.setColor(getBackground());
+        g.fillRect(0, 0, squareW, squareH);
+
+        int x;
+        int y;
+
+        if (valueVis)
+        {
+            if (isWarnLow || isWarnHigh)
+                g.setColor(WARN_LEVEL_COLOR);
             else
-                g.setColor(getBackground());
-            g.fillRect(0, 0, squareW, squareH);
+                g.setColor(Color.BLACK);
 
-            int x;
-            int y;
+            FontMetrics fm = this.getFontMetrics(this.getFont());
+            int numW;
+            int numH = fm.getHeight();
+            // int numA = fm.getAscent();
 
-            if (valueVis)
+            switch (kind)
             {
-                if (isWarnLow || isWarnHigh)
-                    g.setColor(WARN_LEVEL_COLOR);
-                else
-                    g.setColor(Color.BLACK);
-
-                FontMetrics fm = this.getFontMetrics(this.getFont());
-                int numW;
-                int numH = fm.getHeight();
-                //int numA = fm.getAscent();
-
-                switch (kind)
+            case NUMBER:
+            case BOUNDED_INC:
+            case BOUNDED_DEC:
+            case TEXT:
                 {
-                case NUMBER:
-                case BOUNDED_INC:
-                case BOUNDED_DEC:
-                case TEXT:
-                    {
-                        String valstring;
-                        if (kind != TEXT)
-                            valstring = Integer.toString(intValue);
-                        else
-                            valstring = textValue;
+                    String valstring;
+                    if (kind != TEXT)
+                        valstring = Integer.toString(intValue);
+                    else
+                        valstring = textValue;
 
-                        numW = fm.stringWidth(valstring);
-
-                        x = (squareW - numW) / 2;
-
-                        // y = numA + (HEIGHT - numH) / 2; // proper way
-                        // y = 12; // way that works
-                        y = (squareH + ((int)(.6 * numH))) / 2;  // Semi-proper
-
-                        g.drawString(valstring, x, y);
-                    }
-                    break;
-
-                case YES_NO:
-                    String value = (boolValue ? strings.get("abbr.yes") : strings.get("abbr.no"));
-
-                    numW = fm.stringWidth(value);
+                    numW = fm.stringWidth(valstring);
 
                     x = (squareW - numW) / 2;
 
                     // y = numA + (HEIGHT - numH) / 2; // proper way
                     // y = 12; // way that works
-                    y = (squareH + ((int)(.6 * numH))) / 2;  // Semi-proper
+                    y = (squareH + ((int) (.6 * numH))) / 2; // Semi-proper
 
-                    g.drawString(value, x, y);
-
-                    break;
-
-                case CHECKBOX:
-
-                    if (boolValue)
-                    {
-                        final boolean wantWide = (g instanceof Graphics2D) && (squareW >= (2 * WIDTH));
-                        final Stroke origStroke = (wantWide) ? ((Graphics2D) g).getStroke() : null;
-                        if (wantWide)
-                            ((Graphics2D) g).setStroke(new BasicStroke(squareW / (float) WIDTH));
-
-                        int checkX = squareW / 5;
-                        int checkY = squareH / 4;
-                        g.drawLine(checkX, 2 * checkY, 2 * checkX, 3 * checkY);
-                        g.drawLine(2 * checkX, 3 * checkY, 4 * checkX, checkY);
-
-                        if (wantWide)
-                            ((Graphics2D) g).setStroke(origStroke);
-                    }
-
-                    break;
+                    g.drawString(valstring, x, y);
                 }
+                break;
+
+            case YES_NO:
+                String value = (boolValue ? strings.get("abbr.yes") : strings.get("abbr.no"));
+
+                numW = fm.stringWidth(value);
+
+                x = (squareW - numW) / 2;
+
+                // y = numA + (HEIGHT - numH) / 2; // proper way
+                // y = 12; // way that works
+                y = (squareH + ((int) (.6 * numH))) / 2; // Semi-proper
+
+                g.drawString(value, x, y);
+
+                break;
+
+            case CHECKBOX:
+
+                if (boolValue)
+                {
+                    final boolean wantWide = (g instanceof Graphics2D) && (squareW >= (2 * WIDTH));
+                    final Stroke origStroke = (wantWide) ? ((Graphics2D) g).getStroke() : null;
+                    if (wantWide)
+                        ((Graphics2D) g).setStroke(new BasicStroke(squareW / (float) WIDTH));
+
+                    int checkX = squareW / 5;
+                    int checkY = squareH / 4;
+                    g.drawLine(checkX, 2 * checkY, 2 * checkX, 3 * checkY);
+                    g.drawLine(2 * checkX, 3 * checkY, 4 * checkX, checkY);
+
+                    if (wantWide)
+                        ((Graphics2D) g).setStroke(origStroke);
+                }
+
+                break;
             }
+        }
     }
 
     /**
@@ -1145,12 +1190,11 @@ public class ColorSquare extends JComponent implements MouseListener
      */
     public void subtractValue(int v)
     {
-        setIntValue (intValue - v);
+        setIntValue(intValue - v);
     }
 
     /**
-     * DOCUMENT ME!
-     * If a {@link ColorSquareListener} is attached, and value changes,
+     * DOCUMENT ME! If a {@link ColorSquareListener} is attached, and value changes,
      * the listener will be called.
      *
      * @param v DOCUMENT ME!
@@ -1158,7 +1202,7 @@ public class ColorSquare extends JComponent implements MouseListener
     public void setIntValue(int v)
     {
         if (v == intValue)
-            return;  // <-- Early return: No change in intValue
+            return; // <-- Early return: No change in intValue
 
         int oldIntValue = intValue;
 
@@ -1187,7 +1231,7 @@ public class ColorSquare extends JComponent implements MouseListener
             super.setToolTipText(ttip_text_zero);
         }
         else if ((ttip_text != null) &&
-            ((isZero != wasZero) || (isWarnLow != wasWarnLow) || (isWarnHigh != wasWarnHigh)))
+                ((isZero != wasZero) || (isWarnLow != wasWarnLow) || (isWarnHigh != wasWarnHigh)))
         {
             if (isWarnHigh && (ttip_text_warnHigh != null))
                 super.setToolTipText(ttip_text_warnHigh);
@@ -1213,8 +1257,7 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * DOCUMENT ME!
-     * If a {@link ColorSquareListener} is attached, and value changes,
+     * DOCUMENT ME! If a {@link ColorSquareListener} is attached, and value changes,
      * the listener will be called.
      *
      * @param v DOCUMENT ME!
@@ -1222,7 +1265,7 @@ public class ColorSquare extends JComponent implements MouseListener
     public void setBoolValue(boolean v)
     {
         if (v == boolValue)
-            return;  // <-- Early return: No change in intValue
+            return; // <-- Early return: No change in intValue
 
         boolean oldBoolValue = boolValue;
         boolValue = v;
@@ -1230,8 +1273,7 @@ public class ColorSquare extends JComponent implements MouseListener
 
         // Listener callback
         if (sqListener != null)
-            sqListener.squareChanged
-                (this, oldBoolValue ? 1 : 0, boolValue ? 1 : 0);
+            sqListener.squareChanged(this, oldBoolValue ? 1 : 0, boolValue ? 1 : 0);
     }
 
     /**
@@ -1245,8 +1287,9 @@ public class ColorSquare extends JComponent implements MouseListener
     }
 
     /**
-     * Optionally, a square listener can be called when the value changes.
-     * If this square is part of a {@link SquaresPanel}, that panel is the listener.
+     * Optionally, a square listener can be called when the value changes. If this
+     * square is part of a {@link SquaresPanel}, that panel is the listener.
+     * 
      * @return square listener, or null.
      * @since 1.1.00
      */
@@ -1257,6 +1300,7 @@ public class ColorSquare extends JComponent implements MouseListener
 
     /**
      * Optionally, a square listener can be called when the value changes.
+     * 
      * @param sp Square listener, or null to clear
      * @since 1.1.00
      */
@@ -1305,12 +1349,90 @@ public class ColorSquare extends JComponent implements MouseListener
         ;
     }
 
+    private interface PressBehavior
+    {
+        void handlePress(ColorSquare sq);
+    }
+
+    private static final PressBehavior TOGGLE_BEHAVIOR = new PressBehavior()
+    {
+        public void handlePress(final ColorSquare sq)
+        {
+            sq.boolValue = ! sq.boolValue;
+        }
+    };
+
+    private static final PressBehavior INCREMENT_BEHAVIOR = new PressBehavior()
+    {
+        public void handlePress(final ColorSquare sq)
+        {
+            sq.intValue++;
+        }
+    };
+
+    private static final PressBehavior BOUNDED_INC_BEHAVIOR = new PressBehavior()
+    {
+        public void handlePress(final ColorSquare sq)
+        {
+            if (sq.intValue < sq.upperBound)
+                sq.intValue++;
+        }
+    };
+
+    private static final PressBehavior BOUNDED_DEC_BEHAVIOR = new PressBehavior()
+    {
+        public void handlePress(final ColorSquare sq)
+        {
+            if (sq.intValue > sq.lowerBound)
+                sq.intValue--;
+        }
+    };
+    
+    private static final PressBehavior NO_OP_BEHAVIOR = new PressBehavior()
+    {
+        public void handlePress(final ColorSquare sq)
+        {
+            // No action (used for TEXT type)
+        }
+    };
+
+    private static PressBehavior getPressBehavior(final int kind)
+    {
+        switch (kind)
+        {
+        case YES_NO:
+        case CHECKBOX:
+            return TOGGLE_BEHAVIOR;
+
+        case NUMBER:
+            return INCREMENT_BEHAVIOR;
+
+        case BOUNDED_INC:
+            return BOUNDED_INC_BEHAVIOR;
+
+        case BOUNDED_DEC:
+            return BOUNDED_DEC_BEHAVIOR;
+            
+        case TEXT:
+            return NO_OP_BEHAVIOR;
+
+        default:
+            throw new IllegalArgumentException("Unknown ColorSquare kind: " + kind);
+        }
+    }
+
     /**
-     * DOCUMENT ME!
-     * If a {@link ColorSquareListener} is attached, and value changes,
-     * the listener will be called.
+     * Handles mouse press events on this ColorSquare.
+     * <p>
+     * If the component is interactive, delegates the press action to the current
+     * {@link PressBehavior}, which updates the square’s value based on its type
+     * (e.g., toggle, increment, bounded change).
+     * <p>
+     * After updating, the component is repainted. If the value has changed and a
+     * {@link ColorSquareListener} is registered, the listener is notified with the
+     * previous and new values.
      *
-     * @param evt DOCUMENT ME!
+     * @param evt the mouse event that triggered this action
      */
     public void mousePressed(MouseEvent evt)
     {
@@ -1318,50 +1440,18 @@ public class ColorSquare extends JComponent implements MouseListener
             return;
 
         int oldIVal = intValue;
-        boolean bvalChanged = false;
+        boolean oldBVal = boolValue;
 
-        switch (kind)
-        {
-        case YES_NO:
-        case CHECKBOX:
-            boolValue = ! boolValue;
-            bvalChanged = true;
-
-            break;
-
-        case NUMBER:
-            intValue++;
-
-            break;
-
-        case BOUNDED_INC:
-
-            if (intValue < upperBound)
-            {
-                intValue++;
-            }
-
-            break;
-
-        case BOUNDED_DEC:
-
-            if (intValue > lowerBound)
-            {
-                intValue--;
-            }
-
-            break;
-        }
+        pressBehavior.handlePress(this);
 
         repaint();
 
         if (sqListener != null)
         {
-            if (bvalChanged)
+            if (oldBVal != boolValue)
                 sqListener.squareChanged(this, boolValue ? 0 : 1, boolValue ? 1 : 0);
             else if (oldIVal != intValue)
                 sqListener.squareChanged(this, oldIVal, intValue);
         }
     }
-
 }
