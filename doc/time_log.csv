@@ -167,3 +167,4 @@ date,issue_id,issue_title,person,activity,minutes,notes,pr_link
 2026-05-07,85,630:P3 GameAction telescoping constructor — Builder,Luke,implement,60,Added builder; replaced telescoping constructors and updated call sites,
 2026-05-07,85,630:P3 GameAction telescoping constructor — Builder,Luke,verify,15,Ran gradle tests,
 2026-05-07,85,630:P3 GameAction telescoping constructor — Builder,Luke,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/99
+2026-05-07,73,630:P3 Switch-based input handling in mousePressed — Strategy,Luke,review,60,Test locally and identify possible bug,https://github.com/evanalba/JSettlers2/pull/96
