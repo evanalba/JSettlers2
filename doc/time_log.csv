@@ -110,3 +110,61 @@ date,issue_id,issue_title,person,activity,minutes,notes,pr_link
 2026-03-26,38,630:P2 [ChatGPT] Long Method smell in SOCGame.putPieceCommon (~285 lines),Luke,review,15,Tested locally; reviewed code changes; requested changes; re-reviewed,https://github.com/evanalba/JSettlers2/pull/47
 2026-04-02,40,630:P2 [SonarQube] - String owner duplicated 6 times,Ricky,review,15,Spot-checked that refactor preserves identical string values across files, https://github.com/evanalba/JSettlers2/pull/64
 2026-04-02,65,630:P2 [SonarQube] - High complexity in recaleBoard,Ricky,review,15,Light review: rescaleBoard split into helpers,https://github.com/evanalba/JSettlers2/pull/66
+2026-04-21,82,630:P3 Duplicated UI theme colors across panels — Flyweight,Ricky,triage,15,Read header label color declarations across NewGameOptionsFrame and SOCConnectOrPracticePanel,
+2026-04-21,82,630:P3 Duplicated UI theme colors across panels — Flyweight,Ricky,plan,15,Decided on a small ClientUITheme constants holder under soc.client,
+2026-04-21,82,630:P3 Duplicated UI theme colors across panels — Flyweight,Ricky,implement,30,Added ClientUITheme and replaced 3 duplicated Color blocks across 2 frames,
+2026-04-21,82,630:P3 Duplicated UI theme colors across panels — Flyweight,Ricky,verify,15,Ran 314-test JUnit suite — all green,
+2026-04-21,82,630:P3 Duplicated UI theme colors across panels — Flyweight,Ricky,pr_overhead,15,Wrote PR description and linked Closes #82,https://github.com/evanalba/JSettlers2/pull/91
+2026-04-21,80,630:P3 soc.game depends on soc.server — Adapter,Ricky,triage,30,Traced soc.game.SOCGame and SOCGameDiceHandler usages of SOCBoardAtServer,
+2026-04-21,80,630:P3 soc.game depends on soc.server — Adapter,Ricky,plan,30,Designed BoardServerExtension interface in soc.game with the two methods callers actually use,
+2026-04-21,80,630:P3 soc.game depends on soc.server — Adapter,Ricky,implement,45,Added BoardServerExtension; SOCBoardAtServer implements it; replaced 2 direct calls with cast through interface,
+2026-04-21,80,630:P3 soc.game depends on soc.server — Adapter,Ricky,verify,30,Ran 314-test suite — all green; grepped soc.game for any leftover SOCBoardAtServer imports,
+2026-04-21,80,630:P3 soc.game depends on soc.server — Adapter,Ricky,pr_overhead,15,Wrote PR description with before/after dependency direction,https://github.com/evanalba/JSettlers2/pull/92
+2026-04-21,78,630:P3 Initial-placement state encoded as scattered ints — State (infrastructure-first),Ricky,triage,30,Read SOCRobotBrain initial-placement handling and traced START1A/B/2A/B/3A/B paths,
+2026-04-21,78,630:P3 Initial-placement state encoded as scattered ints — State (infrastructure-first),Ricky,plan,30,Chose infrastructure-first State: enum + transition helpers without changing brain behavior,
+2026-04-21,78,630:P3 Initial-placement state encoded as scattered ints — State (infrastructure-first),Ricky,implement,60,Added InitialPlacementPhase enum and refactored brain helpers to use it for transitions,
+2026-04-21,78,630:P3 Initial-placement state encoded as scattered ints — State (infrastructure-first),Ricky,verify,30,Ran 314-test suite — all green; ran soc.robot tests twice to spot-check phase transitions,
+2026-04-21,78,630:P3 Initial-placement state encoded as scattered ints — State (infrastructure-first),Ricky,pr_overhead,15,Wrote PR description noting why this is partial / infrastructure-first,https://github.com/evanalba/JSettlers2/pull/93
+2026-05-04,82,630:P3 Duplicated UI theme colors — Flyweight,Ricky,pr_overhead,15,Squash merge after Evan and Luke approvals,https://github.com/evanalba/JSettlers2/pull/91
+2026-05-07,80,630:P3 soc.game depends on soc.server — Adapter,Ricky,pr_overhead,15,Squash merge after approvals,https://github.com/evanalba/JSettlers2/pull/92
+2026-05-07,78,630:P3 Initial-placement state — State (infrastructure-first),Ricky,pr_overhead,15,Squash merge after approvals,https://github.com/evanalba/JSettlers2/pull/93
+2026-05-05,75,630:P3 Long method in showScenarioInfoDialog — Builder,Ricky,review,20,Reviewed PR #94 — Builder cleanly replaces the long setup; approved,https://github.com/evanalba/JSettlers2/pull/94
+2026-05-05,70,630:P3 Flag Argument in extractContentsHalf — Strategy,Ricky,review,20,Reviewed PR #95 — Strategy split for src/dest reads cleaner than the boolean flag; approved,https://github.com/evanalba/JSettlers2/pull/95
+2026-05-08,73,630:P3 Switch-based input handling in mousePressed — Strategy,Ricky,review,25,Reviewed PR #96 — Strategy table replaces the mode switch; verified each branch maps to an existing case; approved,https://github.com/evanalba/JSettlers2/pull/96
+2026-05-07,86,630:P3 messageToGame variants — Template Method,Ricky,review,20,Reviewed PR #97 — template captures the shared dispatch path and variants override the differing step; approved,https://github.com/evanalba/JSettlers2/pull/97
+2026-05-07,84,630:P3 actionPerformed conditional dispatcher — Command,Ricky,review,25,Reviewed PR #98 — Command map replaces the if-chain; left a non-blocking nit on map naming; approved,https://github.com/evanalba/JSettlers2/pull/98
+2026-05-07,85,630:P3 GameAction telescoping constructor — Builder,Ricky,review,20,Reviewed PR #99 — Builder removes telescoping ctor; required fields enforced in build(); approved,https://github.com/evanalba/JSettlers2/pull/99
+2026-05-03,75,630:P3 Long method in showScenarioInfoDialog — Builder,Evan,triage,30,"Read showScenarioInfoDialog and traced layout setup, button wiring, and label sections",
+2026-05-03,75,630:P3 Long method in showScenarioInfoDialog — Builder,Evan,plan,30,Sketched ScenarioInfoDialogBuilder fluent API and required fields,
+2026-05-04,75,630:P3 Long method in showScenarioInfoDialog — Builder,Evan,implement,75,Extracted dialog construction into builder; collapsed scenario method body to a single build chain,
+2026-05-04,75,630:P3 Long method in showScenarioInfoDialog — Builder,Evan,verify,30,Ran gradle tests — 314/314 pass; manually exercised dialog from new game options,
+2026-05-04,75,630:P3 Long method in showScenarioInfoDialog — Builder,Evan,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/94
+2026-05-04,70,630:P3 Flag Argument in extractContentsHalf — Strategy,Evan,triage,30,Read extractContentsHalf and noted the boolean toggle controls two distinct read paths,
+2026-05-04,70,630:P3 Flag Argument in extractContentsHalf — Strategy,Evan,plan,15,Decided on a HalfExtractStrategy interface with src and dest concretes,
+2026-05-04,70,630:P3 Flag Argument in extractContentsHalf — Strategy,Evan,implement,45,Introduced strategy interface and two implementations; replaced boolean call sites,
+2026-05-04,70,630:P3 Flag Argument in extractContentsHalf — Strategy,Evan,verify,30,Ran gradle tests — 314/314 pass,
+2026-05-04,70,630:P3 Flag Argument in extractContentsHalf — Strategy,Evan,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/95
+2026-05-05,73,630:P3 Switch-based input handling in mousePressed — Strategy,Evan,triage,45,Read mousePressed switch over board mode and listed each case behavior,
+2026-05-05,73,630:P3 Switch-based input handling in mousePressed — Strategy,Evan,plan,30,Designed a BoardInputStrategy lookup table keyed by mode,
+2026-05-06,73,630:P3 Switch-based input handling in mousePressed — Strategy,Evan,implement,75,Extracted strategy classes per case and replaced switch with lookup + delegate,
+2026-05-06,73,630:P3 Switch-based input handling in mousePressed — Strategy,Evan,verify,30,Ran gradle tests — 314/314 pass; manually clicked through robber / road / settlement modes,
+2026-05-06,73,630:P3 Switch-based input handling in mousePressed — Strategy,Evan,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/96
+2026-05-04,82,630:P3 Duplicated UI theme colors — Flyweight,Evan,review,15,Reviewed PR #91 — small constants holder; approved,https://github.com/evanalba/JSettlers2/pull/91
+2026-05-05,80,630:P3 soc.game depends on soc.server — Adapter,Evan,review,30,Reviewed PR #92 — confirmed cast keeps behavior identical and removes the unwanted import,https://github.com/evanalba/JSettlers2/pull/92
+2026-05-06,78,630:P3 Initial-placement state — State (infrastructure-first),Evan,review,30,Reviewed PR #93 — enum + helpers don't alter brain behavior; approved,https://github.com/evanalba/JSettlers2/pull/93
+2026-05-05,86,630:P3 Code dupe across messageToGame variants — Template Method,Luke,triage,30,Compared messageToGame overloads and listed the common dispatch path,
+2026-05-05,86,630:P3 Code dupe across messageToGame variants — Template Method,Luke,plan,30,Sketched abstract template with hooks per variant,
+2026-05-06,86,630:P3 Code dupe across messageToGame variants — Template Method,Luke,implement,75,Extracted template into a base method; variants override only the differing step,
+2026-05-06,86,630:P3 Code dupe across messageToGame variants — Template Method,Luke,verify,30,Ran gradle tests; played a short local game to spot-check messages,
+2026-05-06,86,630:P3 Code dupe across messageToGame variants — Template Method,Luke,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/97
+2026-05-06,84,630:P3 actionPerformed conditional dispatcher — Command,Luke,triage,30,Walked through actionPerformed if-chain and grouped per command type,
+2026-05-06,84,630:P3 actionPerformed conditional dispatcher — Command,Luke,plan,30,Listed Command interface plus a String-keyed dispatch map approach,
+2026-05-06,84,630:P3 actionPerformed conditional dispatcher — Command,Luke,implement,90,Created Command interface and concrete commands; built dispatch map; reduced actionPerformed to lookup-and-execute,
+2026-05-06,84,630:P3 actionPerformed conditional dispatcher — Command,Luke,verify,30,Ran gradle tests; clicked through new game options to confirm each button still fires,
+2026-05-06,84,630:P3 actionPerformed conditional dispatcher — Command,Luke,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/98
+2026-05-06,85,630:P3 GameAction telescoping constructor — Builder,Luke,triage,15,Reviewed GameAction overload chain and shared constructor body,
+2026-05-06,85,630:P3 GameAction telescoping constructor — Builder,Luke,plan,15,Outlined GameActionBuilder with required fields enforced in build(),
+2026-05-07,85,630:P3 GameAction telescoping constructor — Builder,Luke,implement,60,Added builder; replaced telescoping constructors and updated call sites,
+2026-05-07,85,630:P3 GameAction telescoping constructor — Builder,Luke,verify,15,Ran gradle tests,
+2026-05-07,85,630:P3 GameAction telescoping constructor — Builder,Luke,pr_overhead,15,Wrote PR description,https://github.com/evanalba/JSettlers2/pull/99
+2026-05-07,73,630:P3 Switch-based input handling in mousePressed — Strategy,Luke,review,60,Test locally and identify possible bug,https://github.com/evanalba/JSettlers2/pull/96
