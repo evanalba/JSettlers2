@@ -1387,6 +1387,14 @@ public class ColorSquare extends JComponent implements MouseListener
                 sq.intValue--;
         }
     };
+    
+    private static final PressBehavior NO_OP_BEHAVIOR = new PressBehavior()
+    {
+        public void handlePress(final ColorSquare sq)
+        {
+            // No action (used for TEXT type)
+        }
+    };
 
     private static PressBehavior getPressBehavior(final int kind)
     {
@@ -1404,6 +1412,9 @@ public class ColorSquare extends JComponent implements MouseListener
 
         case BOUNDED_DEC:
             return BOUNDED_DEC_BEHAVIOR;
+            
+        case TEXT:
+            return NO_OP_BEHAVIOR;
 
         default:
             throw new IllegalArgumentException("Unknown ColorSquare kind: " + kind);
